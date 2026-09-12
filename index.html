@@ -1,0 +1,2620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Copyforge — AI Content Studio</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://js.puter.com/v2/"></script>
+
+<style>
+:root{
+  --bg:#050505;
+  --bg2:#0b0b0b;
+  --panel:#111;
+  --panel2:#161616;
+  --white:#f5f1e8;
+  --muted:#999;
+  --orange:#ff572f;
+  --orange2:#ff8a65;
+  --line:rgba(255,255,255,.1);
+  --glass:rgba(255,255,255,.045);
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+html{
+  scroll-behavior:smooth;
+}
+
+body{
+  background:var(--bg);
+  color:var(--white);
+  font-family:Inter,sans-serif;
+  overflow-x:hidden;
+}
+
+body:before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:999;
+  opacity:.035;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.4'/%3E%3C/svg%3E");
+}
+
+/* CURSOR */
+
+.cursor{
+  position:fixed;
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:var(--orange);
+  pointer-events:none;
+  z-index:10000;
+  transform:translate(-50%,-50%);
+  mix-blend-mode:difference;
+}
+
+.cursor-ring{
+  position:fixed;
+  width:42px;
+  height:42px;
+  border:1px solid rgba(255,255,255,.5);
+  border-radius:50%;
+  pointer-events:none;
+  z-index:9999;
+  transform:translate(-50%,-50%);
+  transition:
+    width .25s ease,
+    height .25s ease,
+    border-color .25s ease;
+}
+
+body.hovering .cursor-ring{
+  width:75px;
+  height:75px;
+  border-color:var(--orange);
+}
+
+/* NAV */
+
+.navbar{
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  height:82px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 5vw;
+  z-index:500;
+  background:linear-gradient(
+    to bottom,
+    rgba(5,5,5,.9),
+    transparent
+  );
+}
+
+.logo{
+  font-family:Montserrat,sans-serif;
+  font-size:22px;
+  font-weight:900;
+  letter-spacing:-1px;
+}
+
+.logo span{
+  color:var(--orange);
+}
+
+.nav-status{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  font-size:11px;
+  letter-spacing:2px;
+  color:#aaa;
+}
+
+.status-dot{
+  width:7px;
+  height:7px;
+  background:#58e68b;
+  border-radius:50%;
+  box-shadow:0 0 15px #58e68b;
+}
+
+/* HERO */
+
+.hero{
+  position:relative;
+  height:150vh;
+  min-height:900px;
+}
+
+.hero-sticky{
+  position:sticky;
+  top:0;
+  height:100vh;
+  overflow:hidden;
+}
+
+#heroCanvas{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+}
+
+.hero-overlay{
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(
+      circle at 50% 45%,
+      transparent 0,
+      rgba(5,5,5,.18) 35%,
+      rgba(5,5,5,.8) 100%
+    );
+  pointer-events:none;
+}
+
+.hero-content{
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  z-index:5;
+  padding:20px;
+}
+
+.eyebrow{
+  font-size:11px;
+  letter-spacing:5px;
+  color:var(--orange2);
+  font-weight:700;
+  margin-bottom:22px;
+}
+
+.hero-title{
+  font-family:Montserrat,sans-serif;
+  font-size:clamp(55px,12vw,170px);
+  font-weight:900;
+  line-height:.82;
+  letter-spacing:-8px;
+  text-transform:uppercase;
+  perspective:1000px;
+}
+
+.hero-title .word{
+  display:block;
+  transform-style:preserve-3d;
+}
+
+.hero-title .accent{
+  color:var(--orange);
+}
+
+.hero-description{
+  max-width:560px;
+  color:#aaa;
+  font-size:16px;
+  line-height:1.7;
+  margin-top:35px;
+}
+
+.hero-actions{
+  display:flex;
+  gap:12px;
+  margin-top:32px;
+}
+
+.btn{
+  position:relative;
+  overflow:hidden;
+  border:0;
+  cursor:pointer;
+  padding:15px 25px;
+  font-family:Montserrat,sans-serif;
+  font-weight:800;
+  font-size:12px;
+  letter-spacing:.5px;
+  transition:.3s;
+}
+
+.btn-primary{
+  background:var(--orange);
+  color:white;
+}
+
+.btn-primary:hover{
+  transform:translateY(-4px);
+  box-shadow:0 15px 45px rgba(255,87,47,.35);
+}
+
+.btn-outline{
+  background:rgba(255,255,255,.03);
+  color:white;
+  border:1px solid rgba(255,255,255,.16);
+  backdrop-filter:blur(10px);
+}
+
+.btn-outline:hover{
+  border-color:var(--orange);
+  color:var(--orange2);
+  transform:translateY(-4px);
+}
+
+.scroll-indicator{
+  position:absolute;
+  bottom:35px;
+  left:50%;
+  transform:translateX(-50%);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
+  font-size:9px;
+  letter-spacing:4px;
+  color:#777;
+  z-index:6;
+}
+
+.scroll-line{
+  width:1px;
+  height:55px;
+  background:linear-gradient(
+    var(--orange),
+    transparent
+  );
+  animation:scrollPulse 1.5s infinite;
+}
+
+@keyframes scrollPulse{
+  0%,100%{transform:scaleY(.3);transform-origin:top}
+  50%{transform:scaleY(1);transform-origin:top}
+}
+
+/* MARQUEE */
+
+.marquee{
+  border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+  overflow:hidden;
+  padding:18px 0;
+  background:#080808;
+}
+
+.marquee-track{
+  display:flex;
+  width:max-content;
+  animation:marquee 25s linear infinite;
+}
+
+.marquee span{
+  font-family:Montserrat,sans-serif;
+  font-weight:800;
+  font-size:13px;
+  letter-spacing:3px;
+  margin-right:50px;
+  color:#777;
+}
+
+.marquee span strong{
+  color:var(--orange);
+}
+
+@keyframes marquee{
+  to{transform:translateX(-50%)}
+}
+
+/* SECTION */
+
+.section{
+  position:relative;
+  padding:150px 6vw;
+}
+
+.section-head{
+  max-width:900px;
+  margin:auto;
+  text-align:center;
+}
+
+.section-label{
+  color:var(--orange2);
+  font-size:10px;
+  letter-spacing:4px;
+  font-weight:700;
+}
+
+.section-title{
+  font-family:Montserrat,sans-serif;
+  font-weight:900;
+  font-size:clamp(40px,7vw,90px);
+  letter-spacing:-4px;
+  line-height:.95;
+  margin-top:18px;
+}
+
+.section-copy{
+  max-width:600px;
+  margin:25px auto 0;
+  color:#888;
+  line-height:1.7;
+}
+
+/* FEATURES */
+
+.feature-stage{
+  max-width:1150px;
+  margin:100px auto 0;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:18px;
+  perspective:1200px;
+}
+
+.feature-card{
+  min-height:360px;
+  padding:35px;
+  position:relative;
+  overflow:hidden;
+  border:1px solid var(--line);
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.07),
+      rgba(255,255,255,.015)
+    );
+  backdrop-filter:blur(15px);
+  transform-style:preserve-3d;
+  transition:
+    transform .5s cubic-bezier(.2,.8,.2,1),
+    border-color .3s;
+}
+
+.feature-card:hover{
+  transform:translateY(-12px) rotateX(4deg) rotateY(-4deg);
+  border-color:rgba(255,87,47,.6);
+}
+
+.feature-number{
+  font-family:Montserrat,sans-serif;
+  font-weight:900;
+  font-size:70px;
+  color:rgba(255,255,255,.045);
+  position:absolute;
+  right:20px;
+  top:10px;
+}
+
+.feature-icon{
+  width:52px;
+  height:52px;
+  border:1px solid rgba(255,87,47,.5);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--orange);
+  font-weight:900;
+  margin-bottom:80px;
+  transform:translateZ(40px);
+}
+
+.feature-card h3{
+  font-family:Montserrat,sans-serif;
+  font-size:21px;
+  margin-bottom:12px;
+  transform:translateZ(35px);
+}
+
+.feature-card p{
+  color:#858585;
+  font-size:13px;
+  line-height:1.7;
+  transform:translateZ(25px);
+}
+
+/* INDUSTRIES */
+
+.industry-section{
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(255,87,47,.08),
+      transparent 35%
+    );
+}
+
+.industry-grid{
+  max-width:1200px;
+  margin:90px auto 0;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:18px;
+  perspective:1600px;
+}
+
+.industry-card{
+  min-height:300px;
+  padding:30px;
+  border:1px solid rgba(255,255,255,.09);
+  background:linear-gradient(
+    145deg,
+    rgba(255,255,255,.065),
+    rgba(255,255,255,.015)
+  );
+  position:relative;
+  overflow:hidden;
+  cursor:pointer;
+  transform-style:preserve-3d;
+  transition:
+    transform .15s ease,
+    border-color .3s,
+    box-shadow .3s;
+}
+
+.industry-card:before{
+  content:"";
+  position:absolute;
+  width:220px;
+  height:220px;
+  background:var(--orange);
+  opacity:.04;
+  filter:blur(70px);
+  right:-100px;
+  bottom:-100px;
+  transition:.5s;
+}
+
+.industry-card:hover{
+  border-color:rgba(255,87,47,.7);
+  box-shadow:
+    0 30px 80px rgba(0,0,0,.45),
+    0 0 50px rgba(255,87,47,.08);
+}
+
+.industry-card:hover:before{
+  opacity:.16;
+}
+
+.card-number{
+  font-family:Montserrat,sans-serif;
+  color:var(--orange);
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:2px;
+}
+
+.card-symbol{
+  position:absolute;
+  right:25px;
+  top:22px;
+  font-size:45px;
+  opacity:.13;
+  transform:translateZ(45px);
+}
+
+.industry-card h3{
+  font-family:Montserrat,sans-serif;
+  font-size:22px;
+  margin-top:70px;
+  transform:translateZ(45px);
+}
+
+.industry-card p{
+  margin-top:12px;
+  color:#777;
+  font-size:13px;
+  line-height:1.65;
+  max-width:270px;
+  transform:translateZ(30px);
+}
+
+.enter{
+  position:absolute;
+  bottom:25px;
+  left:30px;
+  color:var(--orange2);
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:1px;
+  transform:translateZ(40px);
+}
+
+.enter span{
+  display:inline-block;
+  margin-left:7px;
+  transition:.3s;
+}
+
+.industry-card:hover .enter span{
+  transform:translateX(8px);
+}
+
+/* STUDIO */
+
+#studio{
+  display:none;
+  min-height:100vh;
+  background:#f3eee4;
+  color:#111;
+}
+
+.studio-wrap{
+  display:grid;
+  grid-template-columns:280px 1fr;
+  min-height:100vh;
+}
+
+.studio-sidebar{
+  background:#070707;
+  color:white;
+  padding:35px 25px;
+  position:sticky;
+  top:0;
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+
+.change-business{
+  color:#777;
+  font-size:11px;
+  cursor:pointer;
+  margin-bottom:35px;
+}
+
+.change-business:hover{
+  color:white;
+}
+
+.studio-logo{
+  font-family:Montserrat,sans-serif;
+  font-weight:900;
+  font-size:24px;
+}
+
+.studio-logo span{
+  color:var(--orange);
+}
+
+.studio-tagline{
+  color:#666;
+  font-size:11px;
+  line-height:1.6;
+  margin-top:8px;
+  max-width:200px;
+}
+
+.studio-nav{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  margin-top:55px;
+}
+
+.studio-nav-item{
+  padding:13px 10px;
+  border-left:2px solid transparent;
+  color:#777;
+  cursor:pointer;
+  font-size:13px;
+  transition:.25s;
+}
+
+.studio-nav-item:hover{
+  color:white;
+}
+
+.studio-nav-item.active{
+  color:white;
+  border-left-color:var(--orange);
+  background:rgba(255,87,47,.1);
+}
+
+.studio-footer{
+  margin-top:auto;
+  border-top:1px solid #222;
+  padding-top:18px;
+  color:#555;
+  font-size:10px;
+  line-height:1.6;
+}
+
+.studio-main{
+  padding:70px;
+  max-width:1000px;
+  width:100%;
+}
+
+.panel-label{
+  font-size:10px;
+  letter-spacing:4px;
+  color:#a09a8d;
+}
+
+.panel-title{
+  font-family:Montserrat,sans-serif;
+  font-size:48px;
+  font-weight:900;
+  letter-spacing:-2px;
+  margin-top:12px;
+}
+
+.panel-description{
+  color:#666;
+  max-width:600px;
+  font-size:14px;
+  line-height:1.7;
+  margin-top:12px;
+}
+
+.fields{
+  margin-top:45px;
+}
+
+.field-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:18px;
+  margin-bottom:18px;
+}
+
+.field-row.single{
+  grid-template-columns:1fr;
+}
+
+.field{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.field label{
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.3px;
+}
+
+.field input,
+.field select{
+  width:100%;
+  padding:14px;
+  border:1px solid #d5cec0;
+  background:#faf7f0;
+  outline:none;
+  color:#111;
+  font-family:Inter,sans-serif;
+  transition:.2s;
+}
+
+.field input:focus,
+.field select:focus{
+  border-color:var(--orange);
+  box-shadow:0 0 0 3px rgba(255,87,47,.1);
+}
+
+.generate{
+  margin-top:12px;
+  padding:15px 25px;
+  border:0;
+  background:#111;
+  color:white;
+  font-family:Montserrat,sans-serif;
+  font-weight:800;
+  cursor:pointer;
+  transition:.25s;
+}
+
+.generate:hover{
+  background:var(--orange);
+  transform:translateY(-2px);
+}
+
+.generate:disabled{
+  opacity:.5;
+  cursor:not-allowed;
+}
+
+.results{
+  margin-top:45px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.result-card{
+  position:relative;
+  background:#faf7f0;
+  border:1px solid #ddd5c6;
+  padding:22px 25px;
+  border-left:3px solid var(--orange);
+  animation:resultIn .5s ease both;
+}
+
+@keyframes resultIn{
+  from{
+    opacity:0;
+    transform:translateY(25px);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+.result-number{
+  color:var(--orange);
+  font-family:Montserrat,sans-serif;
+  font-size:10px;
+  font-weight:900;
+}
+
+.result-text{
+  font-size:14px;
+  line-height:1.7;
+  margin-top:8px;
+  white-space:pre-wrap;
+  padding-right:70px;
+}
+
+.copy-result{
+  position:absolute;
+  top:18px;
+  right:18px;
+  background:transparent;
+  border:1px solid #d4cbbb;
+  padding:6px 10px;
+  cursor:pointer;
+  font-size:10px;
+}
+
+.copy-result:hover{
+  color:var(--orange);
+  border-color:var(--orange);
+}
+
+.loading{
+  height:85px;
+  background:
+    linear-gradient(
+      90deg,
+      #e7dfd1,
+      #fffaf0,
+      #e7dfd1
+    );
+  background-size:300% 100%;
+  animation:shimmer 1.4s infinite;
+}
+
+@keyframes shimmer{
+  to{
+    background-position:-300% 0;
+  }
+}
+
+.error{
+  padding:20px;
+  color:#b73520;
+  background:#fff4ef;
+  border:1px solid #edc8bd;
+}
+
+/* FOOTER */
+
+.footer{
+  padding:80px 6vw;
+  border-top:1px solid var(--line);
+  display:flex;
+  justify-content:space-between;
+  color:#555;
+  font-size:11px;
+}
+
+.footer strong{
+  color:#aaa;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:900px){
+
+  .feature-stage,
+  .industry-grid{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .studio-wrap{
+    grid-template-columns:1fr;
+  }
+
+  .studio-sidebar{
+    position:relative;
+    height:auto;
+    min-height:auto;
+  }
+
+  .studio-nav{
+    flex-direction:row;
+    overflow-x:auto;
+    margin-top:30px;
+  }
+
+  .studio-footer{
+    display:none;
+  }
+
+  .studio-main{
+    padding:40px 25px;
+  }
+}
+
+@media(max-width:650px){
+
+  .navbar{
+    height:65px;
+    padding:0 20px;
+  }
+
+  .nav-status{
+    display:none;
+  }
+
+  .hero{
+    height:125vh;
+  }
+
+  .hero-title{
+    letter-spacing:-4px;
+    font-size:18vw;
+  }
+
+  .hero-description{
+    font-size:14px;
+  }
+
+  .hero-actions{
+    flex-direction:column;
+    width:220px;
+  }
+
+  .section{
+    padding:100px 20px;
+  }
+
+  .section-title{
+    letter-spacing:-2px;
+  }
+
+  .feature-stage,
+  .industry-grid{
+    grid-template-columns:1fr;
+  }
+
+  .feature-card{
+    min-height:300px;
+  }
+
+  .field-row{
+    grid-template-columns:1fr;
+  }
+
+  .panel-title{
+    font-size:38px;
+  }
+
+  .footer{
+    flex-direction:column;
+    gap:15px;
+  }
+
+  .cursor,
+  .cursor-ring{
+    display:none;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="cursor"></div>
+<div class="cursor-ring"></div>
+
+<!-- NAV -->
+<nav class="navbar">
+  <div class="logo">COPYFORGE<span>.</span></div>
+
+  <div class="nav-status">
+    <span class="status-dot"></span>
+    AI CONTENT ENGINE ONLINE
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+
+  <div class="hero-sticky">
+
+    <canvas id="heroCanvas"></canvas>
+
+    <div class="hero-overlay"></div>
+
+    <div class="hero-content">
+
+      <div class="eyebrow">
+        AI CONTENT STUDIO
+      </div>
+
+      <h1 class="hero-title" id="heroTitle">
+        <span class="word">COPY</span>
+        <span class="word">FORGE<span class="accent">.</span></span>
+      </h1>
+
+      <p class="hero-description">
+        Real AI creates captions, ads, content plans and brand templates
+        tuned specifically to your business — in seconds.
+      </p>
+
+      <div class="hero-actions">
+
+        <button
+          class="btn btn-primary"
+          onclick="scrollToIndustries()">
+          ENTER THE STUDIO
+        </button>
+
+        <button
+          class="btn btn-outline"
+          onclick="scrollToFeatures()">
+          EXPLORE
+        </button>
+
+      </div>
+
+    </div>
+
+    <div class="scroll-indicator">
+      <div class="scroll-line"></div>
+      SCROLL
+    </div>
+
+  </div>
+
+</section>
+
+<!-- MARQUEE -->
+
+<div class="marquee">
+  <div class="marquee-track">
+
+    <span><strong>AI</strong> WRITING</span>
+    <span>CONTENT SYSTEMS</span>
+    <span><strong>REAL</strong> GENERATION</span>
+    <span>BRAND VOICE</span>
+    <span>INSTANT COPY</span>
+
+    <span><strong>AI</strong> WRITING</span>
+    <span>CONTENT SYSTEMS</span>
+    <span><strong>REAL</strong> GENERATION</span>
+    <span>BRAND VOICE</span>
+    <span>INSTANT COPY</span>
+
+  </div>
+</div>
+
+<!-- FEATURES -->
+
+<section class="section" id="features">
+
+  <div class="section-head">
+
+    <div class="section-label">
+      THE SYSTEM
+    </div>
+
+    <h2 class="section-title">
+      One studio.<br>
+      Every channel.
+    </h2>
+
+    <p class="section-copy">
+      Copyforge turns your business information into useful,
+      ready-to-publish content without forcing you through generic templates.
+    </p>
+
+  </div>
+
+  <div class="feature-stage">
+
+    <div class="feature-card">
+
+      <div class="feature-number">01</div>
+
+      <div class="feature-icon">01</div>
+
+      <h3>Built for your industry</h3>
+
+      <p>
+        Clothing, restaurants, dealerships, salons, real estate,
+        gyms, electronics, bakeries and jewelry brands.
+      </p>
+
+    </div>
+
+    <div class="feature-card">
+
+      <div class="feature-number">02</div>
+
+      <div class="feature-icon">02</div>
+
+      <h3>Real AI generation</h3>
+
+      <p>
+        Your product, audience, tone and campaign details are
+        transformed into fresh content every time.
+      </p>
+
+    </div>
+
+    <div class="feature-card">
+
+      <div class="feature-number">03</div>
+
+      <div class="feature-icon">03</div>
+
+      <h3>Copy and publish</h3>
+
+      <p>
+        Generate useful content, copy it instantly and move directly
+        into your publishing workflow.
+      </p>
+
+    </div>
+
+  </div>
+
+</section>
+
+<!-- INDUSTRIES -->
+
+<section class="section industry-section" id="industries">
+
+  <div class="section-head">
+
+    <div class="section-label">
+      SELECT YOUR WORLD
+    </div>
+
+    <h2 class="section-title">
+      Your business.<br>
+      Your AI studio.
+    </h2>
+
+    <p class="section-copy">
+      Choose an industry and enter a workspace designed around
+      the content that business actually needs.
+    </p>
+
+  </div>
+
+  <div class="industry-grid" id="industryGrid"></div>
+
+</section>
+
+<!-- STUDIO -->
+
+<section id="studio">
+
+  <div class="studio-wrap">
+
+    <aside class="studio-sidebar">
+
+      <div
+        class="change-business"
+        onclick="backToIndustries()">
+        ← CHANGE BUSINESS
+      </div>
+
+      <div class="studio-logo">
+        COPYFORGE<span>.</span>
+      </div>
+
+      <div
+        class="studio-tagline"
+        id="studioTagline">
+      </div>
+
+      <div
+        class="studio-nav"
+        id="studioNav">
+      </div>
+
+      <div class="studio-footer">
+        Fresh AI-generated content based on your
+        business details.
+      </div>
+
+    </aside>
+
+    <main class="studio-main">
+
+      <div class="panel-label">
+        AI CONTENT ENGINE
+      </div>
+
+      <h1
+        class="panel-title"
+        id="panelTitle">
+        Captions
+      </h1>
+
+      <p
+        class="panel-description"
+        id="panelDescription">
+      </p>
+
+      <div
+        class="fields"
+        id="fields">
+      </div>
+
+      <button
+        class="generate"
+        id="generateButton"
+        onclick="generateContent()">
+        GENERATE
+      </button>
+
+      <div id="output"></div>
+
+    </main>
+
+  </div>
+
+</section>
+
+<footer class="footer">
+
+  <div>
+    <strong>COPYFORGE.</strong>
+    AI CONTENT STUDIO
+  </div>
+
+  <div>
+    Built for modern businesses.
+  </div>
+
+</footer>
+
+<script>
+
+/* =========================================
+   CURSOR
+========================================= */
+
+const cursor = document.querySelector(".cursor");
+const cursorRing = document.querySelector(".cursor-ring");
+
+let cursorX = 0;
+let cursorY = 0;
+let ringX = 0;
+let ringY = 0;
+
+window.addEventListener("mousemove", e => {
+
+  cursorX = e.clientX;
+  cursorY = e.clientY;
+
+  cursor.style.left = cursorX + "px";
+  cursor.style.top = cursorY + "px";
+
+});
+
+function animateCursor(){
+
+  ringX += (cursorX - ringX) * .15;
+  ringY += (cursorY - ringY) * .15;
+
+  cursorRing.style.left = ringX + "px";
+  cursorRing.style.top = ringY + "px";
+
+  requestAnimationFrame(animateCursor);
+}
+
+animateCursor();
+
+document.querySelectorAll("button,.industry-card,.feature-card").forEach(el => {
+
+  el.addEventListener("mouseenter",()=>{
+    document.body.classList.add("hovering");
+  });
+
+  el.addEventListener("mouseleave",()=>{
+    document.body.classList.remove("hovering");
+  });
+
+});
+
+
+/* =========================================
+   GSAP
+========================================= */
+
+gsap.registerPlugin(ScrollTrigger);
+
+
+/* =========================================
+   HERO TEXT
+========================================= */
+
+gsap.from(".hero-title .word",{
+  y:100,
+  rotateX:70,
+  opacity:0,
+  duration:1.2,
+  stagger:.12,
+  ease:"power4.out"
+});
+
+gsap.from(".eyebrow",{
+  y:20,
+  opacity:0,
+  duration:.8,
+  delay:.2
+});
+
+gsap.from(".hero-description",{
+  y:25,
+  opacity:0,
+  duration:1,
+  delay:.5
+});
+
+gsap.from(".hero-actions",{
+  y:25,
+  opacity:0,
+  duration:1,
+  delay:.7
+});
+
+
+/* =========================================
+   HERO SCROLL ANIMATION
+========================================= */
+
+gsap.to(".hero-content",{
+
+  scale:.72,
+  y:-120,
+  opacity:.25,
+
+  scrollTrigger:{
+    trigger:".hero",
+    start:"top top",
+    end:"bottom top",
+    scrub:1
+  }
+
+});
+
+gsap.to(".hero-title",{
+
+  letterSpacing:"12px",
+
+  scrollTrigger:{
+    trigger:".hero",
+    start:"top top",
+    end:"bottom top",
+    scrub:1
+  }
+
+});
+
+
+/* =========================================
+   FEATURE ANIMATION
+========================================= */
+
+gsap.from(".feature-card",{
+
+  y:100,
+  rotateX:15,
+  opacity:0,
+  stagger:.18,
+
+  scrollTrigger:{
+    trigger:".feature-stage",
+    start:"top 80%",
+    end:"top 35%",
+    scrub:1
+  }
+
+});
+
+
+/* =========================================
+   INDUSTRY ANIMATION
+========================================= */
+
+gsap.from(".industry-card",{
+
+  y:100,
+  opacity:0,
+  rotateX:12,
+  stagger:.08,
+
+  scrollTrigger:{
+    trigger:".industry-grid",
+    start:"top 80%",
+    end:"top 35%",
+    scrub:1
+  }
+
+});
+
+
+/* =========================================
+   3D CARD MOUSE EFFECT
+========================================= */
+
+function setupTilt(){
+
+  document.querySelectorAll(".industry-card").forEach(card => {
+
+    card.addEventListener("mousemove",e=>{
+
+      const rect = card.getBoundingClientRect();
+
+      const x =
+        (e.clientX - rect.left) / rect.width - .5;
+
+      const y =
+        (e.clientY - rect.top) / rect.height - .5;
+
+      card.style.transform =
+        `perspective(900px)
+         rotateX(${y * -10}deg)
+         rotateY(${x * 12}deg)
+         translateZ(12px)`;
+
+    });
+
+    card.addEventListener("mouseleave",()=>{
+
+      card.style.transform =
+        "perspective(900px) rotateX(0) rotateY(0) translateZ(0)";
+
+    });
+
+  });
+
+}
+
+
+/* =========================================
+   THREE.JS
+========================================= */
+
+let scene;
+let camera;
+let renderer;
+let group;
+let particles;
+
+const canvas =
+  document.getElementById("heroCanvas");
+
+function init3D(){
+
+  scene = new THREE.Scene();
+
+  camera =
+    new THREE.PerspectiveCamera(
+      55,
+      window.innerWidth / window.innerHeight,
+      .1,
+      1000
+    );
+
+  camera.position.z = 22;
+
+  renderer =
+    new THREE.WebGLRenderer({
+      canvas,
+      alpha:true,
+      antialias:true
+    });
+
+  renderer.setPixelRatio(
+    Math.min(window.devicePixelRatio,2)
+  );
+
+  renderer.setSize(
+    window.innerWidth,
+    window.innerHeight
+  );
+
+  group = new THREE.Group();
+
+  scene.add(group);
+
+
+  /* LIGHT */
+
+  const ambient =
+    new THREE.AmbientLight(
+      0xffffff,
+      .4
+    );
+
+  scene.add(ambient);
+
+  const orangeLight =
+    new THREE.PointLight(
+      0xff572f,
+      4,
+      80
+    );
+
+  orangeLight.position.set(
+    8,8,10
+  );
+
+  scene.add(orangeLight);
+
+  const whiteLight =
+    new THREE.PointLight(
+      0xffffff,
+      1.5,
+      60
+    );
+
+  whiteLight.position.set(
+    -10,-5,8
+  );
+
+  scene.add(whiteLight);
+
+
+  /* GEOMETRY */
+
+  const geometries = [
+
+    new THREE.IcosahedronGeometry(2.4,1),
+
+    new THREE.TorusGeometry(
+      2,
+      .55,
+      24,
+      80
+    ),
+
+    new THREE.OctahedronGeometry(
+      2.1,
+      1
+    ),
+
+    new THREE.TetrahedronGeometry(
+      2.3,
+      1
+    ),
+
+    new THREE.DodecahedronGeometry(
+      1.6,
+      1
+    )
+
+  ];
+
+
+  const materials = [
+
+    new THREE.MeshStandardMaterial({
+      color:0xff572f,
+      metalness:.8,
+      roughness:.25
+    }),
+
+    new THREE.MeshStandardMaterial({
+      color:0xffffff,
+      metalness:.6,
+      roughness:.3,
+      wireframe:true
+    }),
+
+    new THREE.MeshStandardMaterial({
+      color:0x888888,
+      metalness:.8,
+      roughness:.2
+    }),
+
+    new THREE.MeshStandardMaterial({
+      color:0xff7043,
+      metalness:.6,
+      roughness:.3
+    }),
+
+    new THREE.MeshStandardMaterial({
+      color:0xffffff,
+      metalness:.7,
+      roughness:.2,
+      wireframe:true
+    })
+
+  ];
+
+
+  for(let i=0;i<5;i++){
+
+    const mesh =
+      new THREE.Mesh(
+        geometries[i],
+        materials[i]
+      );
+
+    const angle =
+      i / 5 * Math.PI * 2;
+
+    const radius =
+      8 + Math.random()*3;
+
+    mesh.position.set(
+      Math.cos(angle)*radius,
+      Math.sin(angle)*radius*.55,
+      (Math.random()-.5)*7
+    );
+
+    mesh.userData={
+      baseX:mesh.position.x,
+      baseY:mesh.position.y,
+      baseZ:mesh.position.z,
+      speed:.2+Math.random()*.3,
+      offset:Math.random()*10,
+      rx:(Math.random()-.5)*.008,
+      ry:(Math.random()-.5)*.012
+    };
+
+    group.add(mesh);
+
+  }
+
+
+  /* PARTICLES */
+
+  const count = 900;
+
+  const positions =
+    new Float32Array(count*3);
+
+  for(let i=0;i<count;i++){
+
+    positions[i*3] =
+      (Math.random()-.5)*70;
+
+    positions[i*3+1] =
+      (Math.random()-.5)*45;
+
+    positions[i*3+2] =
+      (Math.random()-.5)*50;
+
+  }
+
+  const geometry =
+    new THREE.BufferGeometry();
+
+  geometry.setAttribute(
+    "position",
+    new THREE.BufferAttribute(
+      positions,
+      3
+    )
+  );
+
+  const material =
+    new THREE.PointsMaterial({
+      color:0xffffff,
+      size:.045,
+      transparent:true,
+      opacity:.45
+    });
+
+  particles =
+    new THREE.Points(
+      geometry,
+      material
+    );
+
+  scene.add(particles);
+
+
+  window.addEventListener(
+    "resize",
+    resize3D
+  );
+
+  animate3D();
+
+}
+
+let threeMouseX=0;
+let threeMouseY=0;
+
+window.addEventListener("mousemove",e=>{
+
+  threeMouseX =
+    (e.clientX/window.innerWidth-.5);
+
+  threeMouseY =
+    (e.clientY/window.innerHeight-.5);
+
+});
+
+
+function animate3D(){
+
+  requestAnimationFrame(
+    animate3D
+  );
+
+  const t =
+    performance.now()*.001;
+
+  group.children.forEach(mesh=>{
+
+    const d = mesh.userData;
+
+    mesh.rotation.x += d.rx;
+    mesh.rotation.y += d.ry;
+
+    mesh.position.y =
+      d.baseY +
+      Math.sin(
+        t*d.speed+d.offset
+      )*.6;
+
+  });
+
+  group.rotation.y +=
+    (threeMouseX*.35-group.rotation.y)*.02;
+
+  group.rotation.x +=
+    (-threeMouseY*.18-group.rotation.x)*.02;
+
+  particles.rotation.y =
+    t*.008;
+
+  particles.rotation.x =
+    t*.002;
+
+  camera.position.x +=
+    (threeMouseX*2-camera.position.x)*.025;
+
+  camera.position.y +=
+    (-threeMouseY-camera.position.y)*.025;
+
+  camera.lookAt(
+    scene.position
+  );
+
+  renderer.render(
+    scene,
+    camera
+  );
+
+}
+
+function resize3D(){
+
+  camera.aspect =
+    window.innerWidth /
+    window.innerHeight;
+
+  camera.updateProjectionMatrix();
+
+  renderer.setSize(
+    window.innerWidth,
+    window.innerHeight
+  );
+
+}
+
+init3D();
+
+
+/* =========================================
+   SCROLL 3D
+========================================= */
+
+gsap.to(group.rotation,{
+
+  y:Math.PI*.8,
+  x:.35,
+
+  scrollTrigger:{
+    trigger:".hero",
+    start:"top top",
+    end:"bottom top",
+    scrub:1
+  }
+
+});
+
+gsap.to(group.scale,{
+
+  x:.65,
+  y:.65,
+  z:.65,
+
+  scrollTrigger:{
+    trigger:".hero",
+    start:"top top",
+    end:"bottom top",
+    scrub:1
+  }
+
+});
+
+
+/* =========================================
+   INDUSTRIES DATA
+========================================= */
+
+const INDUSTRIES = {
+
+  clothing:{
+    name:"Clothing Brand",
+    icon:"✦",
+    tagline:"AI content studio tuned for fashion brands."
+  },
+
+  restaurant:{
+    name:"Restaurant",
+    icon:"◈",
+    tagline:"AI content studio tuned for restaurants and cafes."
+  },
+
+  carshowroom:{
+    name:"Car Showroom",
+    icon:"◇",
+    tagline:"AI content studio tuned for dealerships."
+  },
+
+  salon:{
+    name:"Salon & Beauty",
+    icon:"✧",
+    tagline:"AI content studio tuned for beauty businesses."
+  },
+
+  realestate:{
+    name:"Real Estate",
+    icon:"▣",
+    tagline:"AI content studio tuned for property businesses."
+  },
+
+  gym:{
+    name:"Gym & Fitness",
+    icon:"▲",
+    tagline:"AI content studio tuned for fitness brands."
+  },
+
+  electronics:{
+    name:"Electronics Store",
+    icon:"⌁",
+    tagline:"AI content studio tuned for technology stores."
+  },
+
+  bakery:{
+    name:"Bakery & Sweets",
+    icon:"◆",
+    tagline:"AI content studio tuned for bakeries and sweet shops."
+  },
+
+  jewelry:{
+    name:"Jewelry Brand",
+    icon:"◇",
+    tagline:"AI content studio tuned for jewelry brands."
+  }
+
+};
+
+
+/* =========================================
+   CREATE INDUSTRY CARDS
+========================================= */
+
+const industryGrid =
+  document.getElementById(
+    "industryGrid"
+  );
+
+let industryIndex=1;
+
+Object.entries(INDUSTRIES).forEach(
+  ([key,industry])=>{
+
+    const card =
+      document.createElement("div");
+
+    card.className =
+      "industry-card";
+
+    card.dataset.industry =
+      key;
+
+    card.innerHTML = `
+
+      <div class="card-number">
+        ${String(industryIndex).padStart(2,"0")}
+      </div>
+
+      <div class="card-symbol">
+        ${industry.icon}
+      </div>
+
+      <h3>
+        ${industry.name}
+      </h3>
+
+      <p>
+        ${industry.tagline}
+        Create captions, ads, ideas,
+        templates and social content.
+      </p>
+
+      <div class="enter">
+        ENTER STUDIO →
+      </div>
+
+    `;
+
+    card.addEventListener(
+      "click",
+      ()=>openStudio(key)
+    );
+
+    industryGrid.appendChild(card);
+
+    industryIndex++;
+
+  }
+);
+
+setupTilt();
+
+
+/* =========================================
+   STUDIO TABS
+========================================= */
+
+const TABS = {
+
+  captions:{
+    title:"Captions",
+    description:"Generate ready-to-post social captions from your business details.",
+    fields:[
+      ["product","Product / service","text","e.g. New product or service"],
+      ["platform","Platform","select",["Instagram","TikTok","Facebook","Pinterest"]],
+      ["tone","Brand tone","select",["Minimal & premium","Bold & energetic","Friendly & casual","Professional","Playful"]],
+      ["detail","Key detail","text","e.g. new launch, discount, limited stock"]
+    ]
+  },
+
+  adcopy:{
+    title:"Ad Copy",
+    description:"Create short paid-social advertisements with strong hooks and CTAs.",
+    fields:[
+      ["campaign","Campaign name","text","e.g. Summer Sale"],
+      ["offer","Offer / hook","text","e.g. 20% off"],
+      ["audience","Target audience","text","e.g. young professionals"],
+      ["platform","Platform","select",["Instagram","Facebook","TikTok","Google Ads"]]
+    ]
+  },
+
+  ideas:{
+    title:"Content Ideas",
+    description:"Build a complete week of content ideas around your current business focus.",
+    fields:[
+      ["category","Business category","text","e.g. luxury fashion"],
+      ["focus","Current focus","text","e.g. new collection"],
+      ["platform","Main platform","select",["Instagram","TikTok","Facebook","YouTube"]]
+    ]
+  },
+
+  templates:{
+    title:"Brand Templates",
+    description:"Create reusable copy frameworks that your brand can use again and again.",
+    fields:[
+      ["purpose","Template purpose","text","e.g. product launch"],
+      ["tone","Brand tone","select",["Premium","Friendly","Bold","Minimal","Professional"]],
+      ["details","Important details","text","e.g. offer, location, CTA"]
+    ]
+  },
+
+  hashtags:{
+    title:"Hashtags & Bio",
+    description:"Generate Instagram bio options and useful hashtag groups.",
+    fields:[
+      ["brandname","Brand name","text","e.g. My Brand"],
+      ["niche","What you sell","text","e.g. premium handmade clothing"],
+      ["location","Location","text","e.g. Islamabad, Pakistan"]
+    ]
+  }
+
+};
+
+
+/* =========================================
+   STUDIO STATE
+========================================= */
+
+let currentIndustry = null;
+let currentTab = "captions";
+
+
+/* =========================================
+   OPEN STUDIO
+========================================= */
+
+function openStudio(industryKey){
+
+  currentIndustry =
+    industryKey;
+
+  currentTab =
+    "captions";
+
+  const studio =
+    document.getElementById("studio");
+
+  studio.style.display =
+    "block";
+
+  document.body.style.background =
+    "#f3eee4";
+
+  document.getElementById(
+    "studioTagline"
+  ).textContent =
+    INDUSTRIES[industryKey].tagline;
+
+  createStudioNav();
+
+  renderTab();
+
+  setTimeout(()=>{
+
+    studio.scrollIntoView({
+      behavior:"smooth"
+    });
+
+  },50);
+
+}
+
+
+/* =========================================
+   STUDIO NAV
+========================================= */
+
+function createStudioNav(){
+
+  const nav =
+    document.getElementById(
+      "studioNav"
+    );
+
+  nav.innerHTML = "";
+
+  Object.entries(TABS).forEach(
+    ([key,tab],index)=>{
+
+      const item =
+        document.createElement("div");
+
+      item.className =
+        "studio-nav-item";
+
+      if(key===currentTab)
+        item.classList.add("active");
+
+      item.innerHTML =
+        `${String(index+1).padStart(2,"0")} &nbsp; ${tab.title}`;
+
+      item.onclick=()=>{
+
+        currentTab=key;
+
+        document
+          .querySelectorAll(
+            ".studio-nav-item"
+          )
+          .forEach(
+            el=>el.classList.remove("active")
+          );
+
+        item.classList.add("active");
+
+        renderTab();
+
+      };
+
+      nav.appendChild(item);
+
+    }
+  );
+
+}
+
+
+/* =========================================
+   RENDER TAB
+========================================= */
+
+function renderTab(){
+
+  const tab =
+    TABS[currentTab];
+
+  document.getElementById(
+    "panelTitle"
+  ).textContent =
+    tab.title;
+
+  document.getElementById(
+    "panelDescription"
+  ).textContent =
+    tab.description;
+
+  document.getElementById(
+    "output"
+  ).innerHTML="";
+
+  const fields =
+    document.getElementById(
+      "fields"
+    );
+
+  fields.innerHTML="";
+
+  let row =
+    document.createElement("div");
+
+  row.className =
+    "field-row";
+
+  fields.appendChild(row);
+
+  tab.fields.forEach(
+    (field,index)=>{
+
+      const [
+        id,
+        label,
+        type,
+        options
+      ] = field;
+
+      const wrapper =
+        document.createElement("div");
+
+      wrapper.className =
+        "field";
+
+      const labelEl =
+        document.createElement("label");
+
+      labelEl.textContent =
+        label;
+
+      wrapper.appendChild(
+        labelEl
+      );
+
+      let input;
+
+      if(type==="select"){
+
+        input =
+          document.createElement(
+            "select"
+          );
+
+        options.forEach(option=>{
+
+          const opt =
+            document.createElement(
+              "option"
+            );
+
+          opt.value=option;
+          opt.textContent=option;
+
+          input.appendChild(opt);
+
+        });
+
+      }else{
+
+        input =
+          document.createElement(
+            "input"
+          );
+
+        input.type="text";
+        input.placeholder=options;
+
+      }
+
+      input.id =
+        "field-"+id;
+
+      wrapper.appendChild(
+        input
+      );
+
+      row.appendChild(
+        wrapper
+      );
+
+      if(
+        row.children.length===2 &&
+        index!==tab.fields.length-1
+      ){
+
+        row =
+          document.createElement(
+            "div"
+          );
+
+        row.className =
+          "field-row";
+
+        fields.appendChild(
+          row
+        );
+
+      }
+
+    }
+  );
+
+  document.getElementById(
+    "generateButton"
+  ).textContent =
+    "GENERATE " +
+    tab.title.toUpperCase();
+
+}
+
+
+/* =========================================
+   GENERATE
+========================================= */
+
+async function generateContent(){
+
+  const button =
+    document.getElementById(
+      "generateButton"
+    );
+
+  const output =
+    document.getElementById(
+      "output"
+    );
+
+  const tab =
+    TABS[currentTab];
+
+  const values={};
+
+  tab.fields.forEach(
+    ([id])=>{
+
+      const element =
+        document.getElementById(
+          "field-"+id
+        );
+
+      values[id] =
+        element.value.trim() ||
+        "not specified";
+
+    }
+  );
+
+  button.disabled=true;
+  button.textContent=
+    "GENERATING...";
+
+  output.innerHTML=`
+
+    <div class="results">
+
+      <div class="loading"></div>
+      <div class="loading"></div>
+      <div class="loading"></div>
+
+    </div>
+
+  `;
+
+
+  const industry =
+    INDUSTRIES[currentIndustry];
+
+  const prompt = `
+
+You are an expert social media content writer.
+
+Business industry:
+${industry.name}
+
+Task:
+${tab.title}
+
+Business information:
+${JSON.stringify(values,null,2)}
+
+Create high-quality, useful, original content.
+
+For captions:
+Create 5 distinct captions.
+
+For ad copy:
+Create 3 ad variants with headline,
+primary text and CTA.
+
+For content ideas:
+Create a 7-day content plan.
+
+For templates:
+Create 3 reusable templates.
+
+For hashtags and bio:
+Create 3 bio options and 3 hashtag sets.
+
+Keep the writing natural.
+Avoid generic filler.
+Match the requested brand tone.
+
+Return ONLY the content.
+
+`;
+
+
+  try{
+
+    const messages =
+      [{ role: "user", content: prompt }];
+
+    output.innerHTML = `
+      <div class="results">
+        <div id="stream-box" style="background:#faf7f0;border:1px solid #ddd5c6;border-left:3px solid #ff572f;padding:22px 25px;font-size:14px;line-height:1.7;white-space:pre-wrap;min-height:60px;"></div>
+      </div>
+    `;
+    const streamBox = document.getElementById('stream-box');
+    let streamedText = '';
+
+    const response = await puter.ai.chat(
+      prompt,
+      { model: "anthropic/claude-sonnet-5", stream: true }
+    );
+
+    for await (const part of response) {
+      if (part?.text) {
+        streamedText += part.text;
+        streamBox.textContent = streamedText;
+      }
+    }
+
+    const text = streamedText.trim();
+
+
+    if(!text){
+
+      throw new Error(
+        "No content returned."
+      );
+
+    }
+
+
+    renderResults(
+      text
+    );
+
+
+  }catch(error){
+
+    output.innerHTML=`
+
+      <div class="error">
+        Something went wrong:
+        ${escapeHtml(error.message)}
+      </div>
+
+    `;
+
+  }finally{
+
+    button.disabled=false;
+
+    button.textContent =
+      "GENERATE "+
+      tab.title.toUpperCase();
+
+  }
+
+}
+
+
+/* =========================================
+   RESULTS
+========================================= */
+
+function renderResults(text){
+
+  const output =
+    document.getElementById(
+      "output"
+    );
+
+  let blocks =
+    text
+      .split(/\n{2,}/)
+      .map(x=>x.trim())
+      .filter(Boolean);
+
+  if(blocks.length<=1){
+
+    blocks =
+      text
+        .split(/\n(?=\d+[\.\)]|\bDay\s+\d|\bVariant\s+\d)/i)
+        .map(x=>x.trim())
+        .filter(Boolean);
+
+  }
+
+  if(blocks.length===0)
+    blocks=[text];
+
+
+  output.innerHTML = `
+
+    <div class="results">
+
+      ${blocks.map(
+        (block,index)=>`
+
+          <div
+            class="result-card"
+            style="animation-delay:${index*.08}s"
+          >
+
+            <div class="result-number">
+              ${String(index+1).padStart(2,"0")}
+            </div>
+
+            <div class="result-text">
+              ${escapeHtml(
+                cleanResult(block)
+              )}
+            </div>
+
+            <button
+              class="copy-result"
+              onclick="copyResult(this)"
+            >
+              COPY
+            </button>
+
+          </div>
+
+        `
+      ).join("")}
+
+    </div>
+
+  `;
+
+}
+
+
+function cleanResult(text){
+
+  return text
+    .replace(
+      /^\s*(\d+[\.\)]|Variant\s+\d+:?|Day\s+\d+:?)\s*/i,
+      ""
+    )
+    .trim();
+
+}
+
+
+/* =========================================
+   COPY
+========================================= */
+
+function copyResult(button){
+
+  const card =
+    button.closest(
+      ".result-card"
+    );
+
+  const text =
+    card.querySelector(
+      ".result-text"
+    ).textContent.trim();
+
+  navigator.clipboard
+    .writeText(text)
+    .then(()=>{
+
+      const old =
+        button.textContent;
+
+      button.textContent =
+        "COPIED";
+
+      setTimeout(()=>{
+
+        button.textContent =
+          old;
+
+      },1500);
+
+    });
+
+}
+
+
+/* =========================================
+   ESCAPE HTML
+========================================= */
+
+function escapeHtml(text){
+
+  const div =
+    document.createElement("div");
+
+  div.textContent=text;
+
+  return div.innerHTML;
+
+}
+
+
+/* =========================================
+   NAVIGATION
+========================================= */
+
+function scrollToFeatures(){
+
+  document.getElementById(
+    "features"
+  ).scrollIntoView({
+    behavior:"smooth"
+  });
+
+}
+
+function scrollToIndustries(){
+
+  document.getElementById(
+    "industries"
+  ).scrollIntoView({
+    behavior:"smooth"
+  });
+
+}
+
+
+function backToIndustries(){
+
+  const studio =
+    document.getElementById(
+      "studio"
+    );
+
+  studio.style.display="none";
+
+  document.body.style.background =
+    "#050505";
+
+  document.getElementById(
+    "industries"
+  ).scrollIntoView({
+    behavior:"smooth"
+  });
+
+}
+
+
+/* =========================================
+   STUDIO REVEAL
+========================================= */
+
+const studioObserver =
+  new MutationObserver(()=>{
+
+    const studio =
+      document.getElementById(
+        "studio"
+      );
+
+    if(studio.style.display==="block"){
+
+      gsap.fromTo(
+        ".studio-main",
+        {
+          opacity:0,
+          y:30
+        },
+        {
+          opacity:1,
+          y:0,
+          duration:.7,
+          ease:"power3.out"
+        }
+      );
+
+    }
+
+  });
+
+studioObserver.observe(
+  document.getElementById("studio"),
+  {
+    attributes:true,
+    attributeFilter:["style"]
+  }
+);
+
+
+/* =========================================
+   SMOOTH PARALLAX
+========================================= */
+
+window.addEventListener(
+  "scroll",
+  ()=>{
+
+    const scroll =
+      window.scrollY;
+
+    document.documentElement
+      .style.setProperty(
+        "--scroll",
+        scroll
+      );
+
+  }
+);
+
+</script>
+
+</body>
+</html>
