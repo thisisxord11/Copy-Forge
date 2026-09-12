@@ -16,3 +16,4 @@ A single HTML file. No API key, no backend, no local model download. Real Claude
 ## Deployment
 
 Just `index.html`. Upload it to GitHub → Vercel (or Netlify, GitHub Pages, anywhere) exactly like before. No environment variables, no settings, nothing else to configure.
+# Copy-Forge
