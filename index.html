@@ -6,7 +6,7 @@
   <title>Copyforge Pro — AI Content Studio by Abubakar Siddique</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Inter:wght@400;500;600;700&family=Orbitron:wght@500;700;900&family=Playfair+Display:wght@700;800;900&family=Press+Start+2P&family=VT323&family=Space+Grotesk:wght@500;700&family=Fraunces:wght@600;700;900&family=Sora:wght@500;700;800&family=Bebas+Neue&family=Poppins:wght@500;700;800&family=JetBrains+Mono:wght@500;700&family=Unbounded:wght@600;800&family=Outfit:wght@500;700;800&family=Audiowide&family=DM+Serif+Display&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
     :root {
@@ -25,6 +25,31 @@
       --purple: #7c3aed;
       --cyan: #06b6d4;
       --green: #10b981;
+
+      /* ---- theming: fonts & shape ---- */
+      --font-heading: 'Montserrat', sans-serif;
+      --font-body: 'Inter', sans-serif;
+      --radius-sm: 6px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --radius-xl: 20px;
+      --heading-tracking: -1px;
+
+      /* ---- theming: light "studio" panel palette ---- */
+      --studio-bg1: #f3eee4;
+      --studio-bg2: #fffaf0;
+      --studio-ink: #111;
+      --studio-ink-soft: #333;
+      --studio-muted: #666;
+      --studio-card: #fff;
+      --studio-border: #e0d5c7;
+      --studio-border-soft: #d5cec0;
+      --studio-input-bg: #faf7f0;
+      --studio-active-bg: #111;
+      --studio-active-text: #fff;
+
+      /* ---- theming: 3D hero fx ---- */
+      --hero-opacity: .5;
     }
 
     * {
@@ -40,7 +65,7 @@
     body {
       background: var(--bg);
       color: var(--white);
-      font-family: 'Inter', sans-serif;
+      font-family: var(--font-body);
       overflow-x: hidden;
       position: relative;
     }
@@ -104,13 +129,13 @@
       justify-content: space-between;
       padding: 0 5vw;
       z-index: 500;
-      background: linear-gradient(to bottom, rgba(10, 10, 10, .95), transparent);
+      background: linear-gradient(to bottom, var(--bg), transparent);
       backdrop-filter: blur(10px);
       border-bottom: 1px solid var(--line);
     }
 
     .logo {
-      font-family: 'Montserrat', sans-serif;
+      font-family: var(--font-heading);
       font-size: 24px;
       font-weight: 900;
       letter-spacing: -1px;
@@ -127,7 +152,7 @@
       width: 32px;
       height: 32px;
       background: linear-gradient(135deg, var(--orange), var(--orange2));
-      border-radius: 8px;
+      border-radius: var(--radius-md);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -176,12 +201,12 @@
       border: 0;
       cursor: pointer;
       padding: 12px 24px;
-      font-family: 'Montserrat', sans-serif;
+      font-family: var(--font-heading);
       font-weight: 700;
       font-size: 13px;
       letter-spacing: .5px;
       transition: .3s;
-      border-radius: 8px;
+      border-radius: var(--radius-md);
     }
 
     .btn::before {
@@ -249,7 +274,7 @@
       inset: 0;
       width: 100%;
       height: 100%;
-      opacity: .5;
+      opacity: var(--hero-opacity);
     }
 
     .hero-content {
@@ -275,7 +300,7 @@
       padding: 8px 16px;
       background: rgba(255, 87, 47, .1);
       border: 1px solid rgba(255, 87, 47, .3);
-      border-radius: 20px;
+      border-radius: var(--radius-xl);
       color: var(--orange2);
       font-size: 12px;
       font-weight: 600;
@@ -285,7 +310,7 @@
     }
 
     .hero-content h1 {
-      font-family: 'Montserrat', sans-serif;
+      font-family: var(--font-heading);
       font-size: clamp(48px, 12vw, 120px);
       font-weight: 900;
       line-height: .95;
@@ -298,7 +323,7 @@
     }
 
     .hero-content p {
-      color: #aaa;
+      color: var(--muted);
       font-size: 18px;
       max-width: 500px;
       margin: 0 auto 40px;
@@ -341,7 +366,7 @@
       width: 24px;
       height: 40px;
       border: 2px solid var(--orange);
-      border-radius: 12px;
+      border-radius: var(--radius-lg);
       display: flex;
       align-items: flex-start;
       justify-content: center;
@@ -375,7 +400,7 @@
       background: linear-gradient(145deg, rgba(255, 255, 255, .05), rgba(255, 255, 255, .01));
       border: 1px solid var(--line);
       padding: 30px;
-      border-radius: 12px;
+      border-radius: var(--radius-lg);
       backdrop-filter: blur(10px);
       text-align: center;
       transition: all .3s;
@@ -388,7 +413,7 @@
     }
 
     .stat-number {
-      font-family: 'Montserrat', sans-serif;
+      font-family: var(--font-heading);
       font-size: 48px;
       font-weight: 900;
       color: var(--orange);
@@ -423,7 +448,7 @@
     }
 
     .section-title {
-      font-family: 'Montserrat', sans-serif;
+      font-family: var(--font-heading);
       font-size: clamp(36px, 7vw, 80px);
       font-weight: 900;
       letter-spacing: -2px;
@@ -431,7 +456,7 @@
     }
 
     .section-description {
-      color: #888;
+      color: var(--muted);
       font-size: 16px;
       max-width: 600px;
       margin: 0 auto;
@@ -450,7 +475,7 @@
       background: linear-gradient(145deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .02));
       border: 1px solid var(--line);
       padding: 40px;
-      border-radius: 12px;
+      border-radius: var(--radius-lg);
       overflow: hidden;
       cursor: pointer;
       transition: all .3s cubic-bezier(.2, .8, .2, 1);
@@ -485,7 +510,7 @@
       width: 56px;
       height: 56px;
       background: linear-gradient(135deg, var(--orange), var(--orange2));
-      border-radius: 12px;
+      border-radius: var(--radius-lg);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -495,14 +520,14 @@
     }
 
     .feature-title {
-      font-family: 'Montserrat', sans-serif;
+      font-family: var(--font-heading);
       font-size: 20px;
       font-weight: 800;
       margin-bottom: 12px;
     }
 
     .feature-description {
-      color: #888;
+      color: var(--muted);
       font-size: 14px;
       line-height: 1.8;
       margin-bottom: 20px;
@@ -553,7 +578,7 @@
       overflow: hidden;
       cursor: pointer;
       transition: all .3s cubic-bezier(.2, .8, .2, 1);
-      border-radius: 12px;
+      border-radius: var(--radius-lg);
       backdrop-filter: blur(10px);
     }
 
@@ -583,7 +608,7 @@
     }
 
     .industry-number {
-      font-family: 'Montserrat', sans-serif;
+      font-family: var(--font-heading);
       font-size: 14px;
       font-weight: 900;
       color: var(--orange);
@@ -604,7 +629,7 @@
     }
 
     .industry-title {
-      font-family: 'Montserrat', sans-serif;
+      font-family: var(--font-heading);
       font-size: 24px;
       font-weight: 800;
       margin-bottom: 12px;
@@ -613,7 +638,7 @@
     }
 
     .industry-description {
-      color: #777;
+      color: var(--muted);
       font-size: 13px;
       line-height: 1.7;
       margin-bottom: 25px;
@@ -643,8 +668,8 @@
     #studio {
       display: none;
       min-height: 100vh;
-      background: linear-gradient(135deg, #f3eee4 0%, #fffaf0 100%);
-      color: #111;
+      background: linear-gradient(135deg, var(--studio-bg1) 0%, var(--studio-bg2) 100%);
+      color: var(--studio-ink);
       padding: 50px 40px;
     }
 
@@ -663,7 +688,7 @@
     }
 
     .studio-title {
-      font-family: 'Montserrat', sans-serif;
+      font-family: var(--font-heading);
       font-size: 48px;
       font-weight: 900;
       letter-spacing: -2px;
@@ -673,9 +698,9 @@
       background: rgba(255, 87, 47, .05);
       border: 1px solid rgba(255, 87, 47, .2);
       padding: 12px 20px;
-      border-radius: 8px;
+      border-radius: var(--radius-md);
       font-size: 13px;
-      color: #666;
+      color: var(--studio-muted);
     }
 
     .close-studio-btn {
@@ -684,7 +709,7 @@
       border: none;
       padding: 12px 24px;
       cursor: pointer;
-      border-radius: 8px;
+      border-radius: var(--radius-md);
       font-weight: 700;
       transition: all .3s;
       display: flex;
@@ -708,10 +733,10 @@
 
     .tab-btn {
       padding: 12px 20px;
-      border: 1.5px solid #d5cec0;
-      background: white;
+      border: 1.5px solid var(--studio-border-soft);
+      background: var(--studio-card);
       cursor: pointer;
-      border-radius: 8px;
+      border-radius: var(--radius-md);
       font-weight: 700;
       font-size: 13px;
       transition: all .3s;
@@ -732,9 +757,9 @@
     }
 
     .tab-btn.active {
-      background: #111;
-      color: white;
-      border-color: #111;
+      background: var(--studio-active-bg);
+      color: var(--studio-active-text);
+      border-color: var(--studio-active-bg);
     }
 
     .tab-btn.active::after {
@@ -747,7 +772,7 @@
     }
 
     .panel-title {
-      font-family: 'Montserrat', sans-serif;
+      font-family: var(--font-heading);
       font-size: 42px;
       font-weight: 900;
       letter-spacing: -1px;
@@ -755,22 +780,22 @@
     }
 
     .panel-description {
-      color: #666;
+      color: var(--studio-muted);
       font-size: 15px;
       line-height: 1.8;
       margin-bottom: 40px;
     }
 
     .form-section {
-      background: white;
-      border: 1px solid #e0d5c7;
+      background: var(--studio-card);
+      border: 1px solid var(--studio-border);
       padding: 40px;
-      border-radius: 12px;
+      border-radius: var(--radius-lg);
       margin-bottom: 30px;
     }
 
     .form-section-title {
-      font-family: 'Montserrat', sans-serif;
+      font-family: var(--font-heading);
       font-size: 18px;
       font-weight: 800;
       margin-bottom: 20px;
@@ -808,7 +833,7 @@
       font-size: 12px;
       font-weight: 800;
       letter-spacing: .3px;
-      color: #333;
+      color: var(--studio-ink-soft);
     }
 
     .field input,
@@ -816,12 +841,12 @@
     .field textarea {
       width: 100%;
       padding: 14px;
-      border: 1.5px solid #e0d5c7;
-      background: #faf7f0;
+      border: 1.5px solid var(--studio-border);
+      background: var(--studio-input-bg);
       outline: none;
-      color: #111;
+      color: var(--studio-ink);
       font-family: inherit;
-      border-radius: 8px;
+      border-radius: var(--radius-md);
       transition: all .3s;
       font-size: 14px;
     }
@@ -836,7 +861,7 @@
     .field textarea:focus {
       border-color: var(--orange);
       box-shadow: 0 0 0 4px rgba(255, 87, 47, .1);
-      background: white;
+      background: var(--studio-card);
     }
 
     .btn-group {
@@ -851,10 +876,10 @@
       border: 0;
       background: linear-gradient(135deg, var(--orange), var(--orange2));
       color: white;
-      font-family: 'Montserrat', sans-serif;
+      font-family: var(--font-heading);
       font-weight: 800;
       cursor: pointer;
-      border-radius: 8px;
+      border-radius: var(--radius-md);
       transition: all .3s;
       font-size: 14px;
       letter-spacing: 1px;
@@ -890,13 +915,13 @@
 
     .clear-btn {
       padding: 16px 30px;
-      border: 1.5px solid #d5cec0;
-      background: white;
-      color: #111;
-      font-family: 'Montserrat', sans-serif;
+      border: 1.5px solid var(--studio-border-soft);
+      background: var(--studio-card);
+      color: var(--studio-ink);
+      font-family: var(--font-heading);
       font-weight: 700;
       cursor: pointer;
-      border-radius: 8px;
+      border-radius: var(--radius-md);
       transition: all .3s;
       font-size: 14px;
     }
@@ -921,7 +946,7 @@
     }
 
     .result-header h3 {
-      font-family: 'Montserrat', sans-serif;
+      font-family: var(--font-heading);
       font-size: 18px;
       font-weight: 800;
     }
@@ -931,7 +956,7 @@
       color: white;
       width: 32px;
       height: 32px;
-      border-radius: 8px;
+      border-radius: var(--radius-md);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -941,11 +966,11 @@
 
     .result-card {
       position: relative;
-      background: white;
-      border: 1.5px solid #e0d5c7;
+      background: var(--studio-card);
+      border: 1.5px solid var(--studio-border);
       padding: 25px;
       border-left: 5px solid var(--orange);
-      border-radius: 8px;
+      border-radius: var(--radius-md);
       animation: slideIn .5s ease both;
     }
 
@@ -982,7 +1007,7 @@
       white-space: pre-wrap;
       word-wrap: break-word;
       padding-right: 70px;
-      color: #333;
+      color: var(--studio-ink-soft);
       font-weight: 500;
     }
 
@@ -996,7 +1021,7 @@
       padding: 8px 14px;
       cursor: pointer;
       font-size: 11px;
-      border-radius: 6px;
+      border-radius: var(--radius-sm);
       font-weight: 700;
       letter-spacing: .5px;
       transition: all .2s;
@@ -1012,7 +1037,7 @@
       background-size: 300% 100%;
       animation: shimmer 1.5s infinite;
       height: 80px;
-      border-radius: 8px;
+      border-radius: var(--radius-md);
       margin: 20px 0;
     }
 
@@ -1027,14 +1052,14 @@
       color: #b73520;
       background: #fff4ef;
       border: 1.5px solid #edc8bd;
-      border-radius: 8px;
+      border-radius: var(--radius-md);
       margin: 20px 0;
     }
 
     .empty-state {
       text-align: center;
       padding: 60px 20px;
-      color: #999;
+      color: var(--muted);
     }
 
     .empty-icon {
@@ -1063,7 +1088,7 @@
     }
 
     .footer-section h3 {
-      font-family: 'Montserrat', sans-serif;
+      font-family: var(--font-heading);
       font-size: 16px;
       font-weight: 800;
       margin-bottom: 15px;
@@ -1072,7 +1097,7 @@
 
     .footer-section a {
       display: block;
-      color: #888;
+      color: var(--muted);
       text-decoration: none;
       font-size: 13px;
       margin-bottom: 10px;
@@ -1092,7 +1117,7 @@
       flex-wrap: wrap;
       gap: 20px;
       font-size: 13px;
-      color: #666;
+      color: var(--studio-muted);
     }
 
     .footer-credits {
@@ -1224,6 +1249,158 @@
         opacity: .5;
       }
     }
+
+    /* ========== UI CUSTOMIZATION ========== */
+    .theme-fab {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      z-index: 800;
+      background: linear-gradient(135deg, var(--orange), var(--orange2));
+      box-shadow: 0 10px 30px rgba(0, 0, 0, .4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      transition: transform .3s, box-shadow .3s;
+    }
+
+    .theme-fab:hover {
+      transform: scale(1.08) rotate(-8deg);
+      box-shadow: 0 14px 40px rgba(0, 0, 0, .5);
+    }
+
+    .theme-panel-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .5);
+      z-index: 850;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .3s;
+    }
+
+    .theme-panel.open ~ .theme-panel-backdrop {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .theme-panel {
+      position: fixed;
+      top: 0;
+      right: -380px;
+      width: 360px;
+      max-width: 92vw;
+      height: 100vh;
+      background: var(--panel);
+      border-left: 1px solid var(--line);
+      z-index: 900;
+      transition: right .35s cubic-bezier(.2, .8, .2, 1);
+      display: flex;
+      flex-direction: column;
+      padding: 28px 22px;
+      overflow-y: auto;
+    }
+
+    .theme-panel.open {
+      right: 0;
+    }
+
+    .theme-panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 22px;
+    }
+
+    .theme-panel-title {
+      font-family: var(--font-heading);
+      font-weight: 800;
+      font-size: 20px;
+      color: var(--white);
+    }
+
+    .theme-panel-subtitle {
+      font-family: var(--font-body);
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .theme-panel-close {
+      background: var(--glass);
+      border: 1px solid var(--line);
+      color: var(--white);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .theme-swatch-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .theme-swatch-btn {
+      background: var(--glass);
+      border: 1.5px solid var(--line);
+      border-radius: var(--radius-md, 10px);
+      padding: 12px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: all .25s;
+      text-align: left;
+    }
+
+    .theme-swatch-btn:hover {
+      border-color: var(--orange);
+      transform: translateY(-2px);
+    }
+
+    .theme-swatch-btn.active {
+      border-color: var(--orange);
+      box-shadow: 0 0 0 2px var(--orange) inset;
+    }
+
+    .theme-swatch-preview {
+      display: flex;
+      height: 34px;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .theme-swatch-preview span {
+      flex: 1;
+    }
+
+    .theme-swatch-label {
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--white);
+      line-height: 1.3;
+    }
+
+    @media (max-width: 480px) {
+      .theme-swatch-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .theme-fab {
+        bottom: 20px;
+        right: 20px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1231,6 +1408,23 @@
 <!-- CURSOR -->
 <div class="cursor"></div>
 <div class="cursor-ring"></div>
+
+<!-- UI CUSTOMIZATION -->
+<button class="theme-fab" id="themeFab" onclick="toggleThemePanel()" aria-label="Customize UI theme">
+  <span class="theme-fab-icon">🎨</span>
+</button>
+
+<aside class="theme-panel" id="themePanel">
+  <div class="theme-panel-header">
+    <div>
+      <div class="theme-panel-title">Customize UI</div>
+      <div class="theme-panel-subtitle">16 distinct 3D looks — pick one</div>
+    </div>
+    <button class="theme-panel-close" onclick="toggleThemePanel()" aria-label="Close customization panel">✕</button>
+  </div>
+  <div class="theme-swatch-grid" id="themeGrid"></div>
+</aside>
+<div class="theme-panel-backdrop" id="themePanelBackdrop" onclick="toggleThemePanel()"></div>
 
 <!-- NAVBAR -->
 <nav class="navbar">
@@ -1483,10 +1677,24 @@
     el.addEventListener("mouseleave", () => document.body.classList.remove("hovering"));
   });
 
-  // ========== 3D HERO CANVAS ==========
-  let scene, camera, renderer, meshes = [];
+  // ========== 3D HERO CANVAS (theme-driven, rebuildable) ==========
+  let scene, camera, renderer, light1, light2;
+  let meshes = [], particleSystem = null, orbitGroup = null, gridMesh = null, sunMesh = null;
 
-  function init3D() {
+  const GEO_FACTORY = {
+    icosahedron: () => new THREE.IcosahedronGeometry(3, 0),
+    torus: () => new THREE.TorusGeometry(4, 1.4, 16, 100),
+    octahedron: () => new THREE.OctahedronGeometry(3, 0),
+    dodecahedron: () => new THREE.DodecahedronGeometry(3, 0),
+    tetrahedron: () => new THREE.TetrahedronGeometry(3.4, 0),
+    box: () => new THREE.BoxGeometry(4, 4, 4),
+    sphere: () => new THREE.SphereGeometry(3, 24, 24),
+    torusKnot: () => new THREE.TorusKnotGeometry(2.6, 0.8, 100, 16),
+    cone: () => new THREE.ConeGeometry(3, 5, 6),
+    ring: () => new THREE.RingGeometry(2, 3.6, 6),
+  };
+
+  function initRenderer() {
     const canvas = document.getElementById("heroCanvas");
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -1496,38 +1704,117 @@
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-    // Lights
-    const light1 = new THREE.PointLight(0xff572f, 2, 100);
+    light1 = new THREE.PointLight(0xff572f, 2, 120);
     light1.position.set(10, 10, 20);
     scene.add(light1);
 
-    const light2 = new THREE.PointLight(0xffffff, 1, 100);
+    light2 = new THREE.PointLight(0xffffff, 1, 120);
     light2.position.set(-10, -10, 20);
     scene.add(light2);
+  }
 
-    // Create rotating objects
-    const geometries = [
-      new THREE.IcosahedronGeometry(3, 0),
-      new THREE.TorusGeometry(4, 1.5, 16, 100),
-      new THREE.OctahedronGeometry(3, 0),
-    ];
+  function clear3D() {
+    meshes.forEach((m) => scene.remove(m));
+    meshes = [];
+    if (particleSystem) { scene.remove(particleSystem); particleSystem = null; }
+    if (orbitGroup) { scene.remove(orbitGroup); orbitGroup = null; }
+    if (gridMesh) { scene.remove(gridMesh); gridMesh = null; }
+    if (sunMesh) { scene.remove(sunMesh); sunMesh = null; }
+  }
 
-    const materials = [
-      new THREE.MeshPhongMaterial({ color: 0xff572f, emissive: 0xff572f, emissiveIntensity: 0.3 }),
-      new THREE.MeshPhongMaterial({ color: 0xffffff, wireframe: true, emissive: 0xff572f, emissiveIntensity: 0.2 }),
-      new THREE.MeshPhongMaterial({ color: 0xff8a65, emissive: 0xff8a65, emissiveIntensity: 0.2 }),
-    ];
+  function makeParticles(count, color, spread, size) {
+    const geo = new THREE.BufferGeometry();
+    const positions = new Float32Array(count * 3);
+    for (let i = 0; i < count * 3; i++) positions[i] = (Math.random() - 0.5) * spread;
+    geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    const mat = new THREE.PointsMaterial({ color, size, transparent: true, opacity: 0.85 });
+    return new THREE.Points(geo, mat);
+  }
 
-    geometries.forEach((geo, i) => {
-      const mesh = new THREE.Mesh(geo, materials[i]);
-      mesh.position.set((Math.random() - 0.5) * 40, (Math.random() - 0.5) * 40, (Math.random() - 0.5) * 40);
-      mesh.userData = {
-        rx: (Math.random() - 0.5) * 0.01,
-        ry: (Math.random() - 0.5) * 0.01,
-      };
-      meshes.push(mesh);
-      scene.add(mesh);
-    });
+  // Builds a completely rebuilt 3D scene from a theme's "three" config.
+  function rebuild3D(cfg) {
+    if (!scene) return;
+    clear3D();
+
+    light1.color.setHex(cfg.light1);
+    light2.color.setHex(cfg.light2);
+
+    if (cfg.mode === "shapes") {
+      cfg.shapes.forEach((s) => {
+        const geo = (GEO_FACTORY[s.geo] || GEO_FACTORY.icosahedron)();
+        const mat = new THREE.MeshPhongMaterial({
+          color: s.color, wireframe: !!s.wireframe,
+          emissive: s.emissive !== undefined ? s.emissive : s.color,
+          emissiveIntensity: s.wireframe ? 0.15 : 0.3,
+        });
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.position.set((Math.random() - 0.5) * 40, (Math.random() - 0.5) * 40, (Math.random() - 0.5) * 40);
+        mesh.userData = {
+          rx: (Math.random() - 0.5) * 0.012 * cfg.speed,
+          ry: (Math.random() - 0.5) * 0.012 * cfg.speed,
+        };
+        meshes.push(mesh);
+        scene.add(mesh);
+      });
+    } else if (cfg.mode === "particles") {
+      particleSystem = makeParticles(cfg.particleCount, cfg.particleColor, cfg.particleSpread || 70, cfg.particleSize || 0.5);
+      scene.add(particleSystem);
+      if (cfg.shapes) {
+        cfg.shapes.forEach((s) => {
+          const geo = (GEO_FACTORY[s.geo] || GEO_FACTORY.icosahedron)();
+          const mat = new THREE.MeshPhongMaterial({ color: s.color, wireframe: !!s.wireframe, emissive: s.color, emissiveIntensity: 0.25 });
+          const mesh = new THREE.Mesh(geo, mat);
+          mesh.position.set((Math.random() - 0.5) * 30, (Math.random() - 0.5) * 30, (Math.random() - 0.5) * 30);
+          mesh.userData = { rx: (Math.random() - 0.5) * 0.01 * cfg.speed, ry: (Math.random() - 0.5) * 0.01 * cfg.speed };
+          meshes.push(mesh);
+          scene.add(mesh);
+        });
+      }
+    } else if (cfg.mode === "grid") {
+      const gridGeo = new THREE.PlaneGeometry(120, 120, 24, 24);
+      const gridMat = new THREE.MeshBasicMaterial({ color: cfg.gridColor, wireframe: true, transparent: true, opacity: 0.55 });
+      gridMesh = new THREE.Mesh(gridGeo, gridMat);
+      gridMesh.rotation.x = -Math.PI / 2.4;
+      gridMesh.position.y = -12;
+      scene.add(gridMesh);
+
+      const sunGeo = new THREE.CircleGeometry(9, 48);
+      const sunMat = new THREE.MeshBasicMaterial({ color: cfg.sunColor, transparent: true, opacity: 0.85 });
+      sunMesh = new THREE.Mesh(sunGeo, sunMat);
+      sunMesh.position.set(0, 4, -20);
+      scene.add(sunMesh);
+
+      if (cfg.particleCount) {
+        particleSystem = makeParticles(cfg.particleCount, cfg.particleColor || cfg.sunColor, 80, 0.6);
+        scene.add(particleSystem);
+      }
+    } else if (cfg.mode === "orbit") {
+      orbitGroup = new THREE.Group();
+      const coreGeo = (GEO_FACTORY[cfg.core.geo] || GEO_FACTORY.dodecahedron)();
+      const coreMat = new THREE.MeshPhongMaterial({ color: cfg.core.color, wireframe: !!cfg.core.wireframe, emissive: cfg.core.color, emissiveIntensity: 0.35 });
+      const core = new THREE.Mesh(coreGeo, coreMat);
+      orbitGroup.add(core);
+      meshes.push(core);
+
+      const satCount = cfg.satellites || 6;
+      for (let i = 0; i < satCount; i++) {
+        const satGeo = new THREE.SphereGeometry(0.7, 16, 16);
+        const satMat = new THREE.MeshPhongMaterial({ color: cfg.satColor, emissive: cfg.satColor, emissiveIntensity: 0.5 });
+        const sat = new THREE.Mesh(satGeo, satMat);
+        const radius = 7 + Math.random() * 5;
+        const angle = (i / satCount) * Math.PI * 2;
+        sat.userData = { radius, angle, tilt: Math.random() * Math.PI, speed: (0.004 + Math.random() * 0.006) * cfg.speed };
+        orbitGroup.add(sat);
+        meshes.push(sat);
+      }
+      orbitGroup.userData = { isOrbit: true, ry: 0.003 * cfg.speed };
+      scene.add(orbitGroup);
+
+      if (cfg.particleCount) {
+        particleSystem = makeParticles(cfg.particleCount, cfg.particleColor, 90, 0.5);
+        scene.add(particleSystem);
+      }
+    }
   }
 
   let mouseX = 0;
@@ -1542,9 +1829,26 @@
     requestAnimationFrame(animate3D);
 
     meshes.forEach((mesh) => {
-      mesh.rotation.x += mesh.userData.rx;
-      mesh.rotation.y += mesh.userData.ry;
+      if (mesh.userData.radius !== undefined) return; // orbit satellites animated below
+      if (mesh.userData.rx !== undefined) {
+        mesh.rotation.x += mesh.userData.rx;
+        mesh.rotation.y += mesh.userData.ry;
+      }
     });
+
+    if (orbitGroup) {
+      orbitGroup.rotation.y += orbitGroup.userData.ry;
+      orbitGroup.children.forEach((child) => {
+        if (child.userData.radius === undefined) return;
+        child.userData.angle += child.userData.speed;
+        child.position.x = Math.cos(child.userData.angle) * child.userData.radius;
+        child.position.z = Math.sin(child.userData.angle) * child.userData.radius;
+        child.position.y = Math.sin(child.userData.angle * 1.3 + child.userData.tilt) * 3;
+      });
+    }
+
+    if (particleSystem) particleSystem.rotation.y += 0.0006;
+    if (gridMesh) gridMesh.position.z = (gridMesh.position.z + 0.05) % 5;
 
     camera.position.x += mouseX * 5 - camera.position.x * 0.02;
     camera.position.y += mouseY * 5 - camera.position.y * 0.02;
@@ -1563,7 +1867,8 @@
   window.addEventListener("resize", onWindowResize);
 
   document.addEventListener("DOMContentLoaded", () => {
-    init3D();
+    initRenderer();
+    applyTheme("default");
     animate3D();
   });
 
@@ -1863,6 +2168,284 @@
 
   // ========== INIT ==========
   document.addEventListener("DOMContentLoaded", initIndustries);
+
+  // ========================================================
+  // ========== UI CUSTOMIZATION: 15 DISTINCT 3D THEMES ======
+  // ========================================================
+  const THEME_DEFS = {
+    default: {
+      label: "Ember Studio", swatch: ["#0a0a0a", "#ff572f", "#ff8a65"],
+      vars: {},
+      three: { mode: "shapes", speed: 1, light1: 0xff572f, light2: 0xffffff, shapes: [
+        { geo: "icosahedron", color: 0xff572f },
+        { geo: "torus", color: 0xffffff, wireframe: true },
+        { geo: "octahedron", color: 0xff8a65 },
+      ]}
+    },
+    cyberpunk: {
+      label: "Cyberpunk Neon", swatch: ["#05010a", "#ff00e6", "#00fff2"],
+      vars: { bg:"#05010a", bg2:"#0a0512", panel:"#0d0416", panel2:"#130a1f", white:"#f2f2ff", "white-dark":"#d8d3ff",
+        muted:"#9a8fc9", orange:"#ff00e6", orange2:"#00fff2", "orange-dark":"#c400b3", line:"rgba(0,255,242,.25)",
+        glass:"rgba(0,255,242,.06)", purple:"#a855f7", cyan:"#00fff2", green:"#39ff88",
+        "font-heading":"'Orbitron', sans-serif", "font-body":"'Inter', sans-serif",
+        "radius-sm":"2px", "radius-md":"3px", "radius-lg":"4px", "radius-xl":"6px", "heading-tracking":"0px",
+        "studio-bg1":"#0d0416", "studio-bg2":"#130a1f", "studio-ink":"#f2f2ff", "studio-ink-soft":"#d8d3ff",
+        "studio-muted":"#9a8fc9", "studio-card":"#150a22", "studio-border":"#3d1f52", "studio-border-soft":"#2a1538",
+        "studio-input-bg":"#0d0416", "studio-active-bg":"#ff00e6", "studio-active-text":"#05010a", "hero-opacity":".8" },
+      three: { mode: "grid", speed: 1.4, light1: 0xff00e6, light2: 0x00fff2, gridColor: 0x00fff2, sunColor: 0xff00e6, particleCount: 300, particleColor: 0x00fff2 }
+    },
+    aurora: {
+      label: "Aurora Glass", swatch: ["#081217", "#7ef7c4", "#8a7ef7"],
+      vars: { bg:"#081217", bg2:"#0c1a20", panel:"#0e1c22", panel2:"#12252c", white:"#eaf8f4", "white-dark":"#d3ece5",
+        muted:"#7fa8a0", orange:"#7ef7c4", orange2:"#8a7ef7", "orange-dark":"#4fd6a0", line:"rgba(126,247,196,.18)",
+        glass:"rgba(255,255,255,.06)", purple:"#8a7ef7", cyan:"#5fd0e8", green:"#7ef7c4",
+        "font-heading":"'DM Serif Display', serif", "font-body":"'Inter', sans-serif",
+        "radius-sm":"14px", "radius-md":"20px", "radius-lg":"28px", "radius-xl":"36px", "heading-tracking":"0px",
+        "studio-bg1":"#0e1c22", "studio-bg2":"#12252c", "studio-ink":"#eaf8f4", "studio-ink-soft":"#cfe8e0",
+        "studio-muted":"#89b0a8", "studio-card":"rgba(255,255,255,.05)", "studio-border":"rgba(126,247,196,.25)",
+        "studio-border-soft":"rgba(126,247,196,.15)", "studio-input-bg":"rgba(255,255,255,.04)",
+        "studio-active-bg":"#7ef7c4", "studio-active-text":"#081217", "hero-opacity":".6" },
+      three: { mode: "particles", speed: .6, light1: 0x7ef7c4, light2: 0x8a7ef7, particleCount: 900, particleColor: 0x7ef7c4, particleSpread: 90, shapes: [
+        { geo: "sphere", color: 0x8a7ef7, wireframe: true }, { geo: "torus", color: 0x7ef7c4, wireframe: true }
+      ]}
+    },
+    royal: {
+      label: "Royal Gold", swatch: ["#0c0a05", "#d4af37", "#f4e4a6"],
+      vars: { bg:"#0c0a05", bg2:"#120e08", panel:"#151006", panel2:"#1c1509", white:"#f4ecd8", "white-dark":"#e6d9b8",
+        muted:"#a89566", orange:"#d4af37", orange2:"#f4e4a6", "orange-dark":"#a5811f", line:"rgba(212,175,55,.22)",
+        glass:"rgba(212,175,55,.05)", purple:"#8a5a9e", cyan:"#5a8f9e", green:"#7a9e5a",
+        "font-heading":"'Playfair Display', serif", "font-body":"'Inter', sans-serif",
+        "radius-sm":"2px", "radius-md":"2px", "radius-lg":"2px", "radius-xl":"2px", "heading-tracking":"-.5px",
+        "studio-bg1":"#151006", "studio-bg2":"#1c1509", "studio-ink":"#f4ecd8", "studio-ink-soft":"#e6d9b8",
+        "studio-muted":"#a89566", "studio-card":"#171209", "studio-border":"#3a2c12", "studio-border-soft":"#2a2009",
+        "studio-input-bg":"#100c05", "studio-active-bg":"#d4af37", "studio-active-text":"#0c0a05", "hero-opacity":".55" },
+      three: { mode: "orbit", speed: .5, light1: 0xd4af37, light2: 0xf4e4a6, core: { geo: "dodecahedron", color: 0xd4af37, wireframe: false }, satellites: 5, satColor: 0xf4e4a6 }
+    },
+    vaporwave: {
+      label: "Vaporwave Retro", swatch: ["#1a0b2e", "#ff6ec7", "#08f7fe"],
+      vars: { bg:"#1a0b2e", bg2:"#230f3d", panel:"#2a1147", panel2:"#341758", white:"#fdf3ff", "white-dark":"#f0d9ff",
+        muted:"#b98fd6", orange:"#ff6ec7", orange2:"#08f7fe", "orange-dark":"#d94fa3", line:"rgba(8,247,254,.25)",
+        glass:"rgba(255,110,199,.08)", purple:"#a45fe8", cyan:"#08f7fe", green:"#05ffa1",
+        "font-heading":"'Press Start 2P', cursive", "font-body":"'VT323', monospace",
+        "radius-sm":"0px", "radius-md":"0px", "radius-lg":"0px", "radius-xl":"0px", "heading-tracking":"0px",
+        "studio-bg1":"#2a1147", "studio-bg2":"#341758", "studio-ink":"#fdf3ff", "studio-ink-soft":"#e8cfff",
+        "studio-muted":"#b98fd6", "studio-card":"#230f3d", "studio-border":"#5b2c8a", "studio-border-soft":"#4a2270",
+        "studio-input-bg":"#1a0b2e", "studio-active-bg":"#ff6ec7", "studio-active-text":"#1a0b2e", "hero-opacity":".85" },
+      three: { mode: "grid", speed: 1, light1: 0xff6ec7, light2: 0x08f7fe, gridColor: 0xff6ec7, sunColor: 0x08f7fe, particleCount: 200, particleColor: 0xffffff }
+    },
+    minimal: {
+      label: "Minimal Mono", swatch: ["#fafafa", "#111111", "#666666"],
+      vars: { bg:"#fafafa", bg2:"#f2f2f2", panel:"#ffffff", panel2:"#f0f0f0", white:"#111111", "white-dark":"#222222",
+        muted:"#777777", orange:"#111111", orange2:"#444444", "orange-dark":"#000000", line:"rgba(0,0,0,.1)",
+        glass:"rgba(0,0,0,.03)", purple:"#111111", cyan:"#111111", green:"#111111",
+        "font-heading":"'Space Grotesk', sans-serif", "font-body":"'Space Grotesk', sans-serif",
+        "radius-sm":"0px", "radius-md":"0px", "radius-lg":"0px", "radius-xl":"0px", "heading-tracking":"-1px",
+        "studio-bg1":"#fafafa", "studio-bg2":"#ffffff", "studio-ink":"#111111", "studio-ink-soft":"#333333",
+        "studio-muted":"#777777", "studio-card":"#ffffff", "studio-border":"#dddddd", "studio-border-soft":"#e5e5e5",
+        "studio-input-bg":"#f5f5f5", "studio-active-bg":"#111111", "studio-active-text":"#ffffff", "hero-opacity":".9" },
+      three: { mode: "shapes", speed: .4, light1: 0x333333, light2: 0xffffff, shapes: [
+        { geo: "box", color: 0x111111, wireframe: true }, { geo: "sphere", color: 0x444444, wireframe: true }
+      ]}
+    },
+    forest: {
+      label: "Forest Organic", swatch: ["#0d1410", "#7cb87f", "#c9a86a"],
+      vars: { bg:"#0d1410", bg2:"#111c15", panel:"#14201a", panel2:"#192a20", white:"#eef2ea", "white-dark":"#dfe6d8",
+        muted:"#8fa88f", orange:"#7cb87f", orange2:"#c9a86a", "orange-dark":"#5f9662", line:"rgba(124,184,127,.2)",
+        glass:"rgba(124,184,127,.05)", purple:"#9e8a5a", cyan:"#6aa8a0", green:"#7cb87f",
+        "font-heading":"'Fraunces', serif", "font-body":"'Inter', sans-serif",
+        "radius-sm":"10px", "radius-md":"16px", "radius-lg":"24px", "radius-xl":"32px", "heading-tracking":"0px",
+        "studio-bg1":"#14201a", "studio-bg2":"#192a20", "studio-ink":"#eef2ea", "studio-ink-soft":"#d3ddcb",
+        "studio-muted":"#8fa88f", "studio-card":"#16241c", "studio-border":"#2a3f30", "studio-border-soft":"#233527",
+        "studio-input-bg":"#101a14", "studio-active-bg":"#7cb87f", "studio-active-text":"#0d1410", "hero-opacity":".55" },
+      three: { mode: "shapes", speed: .5, light1: 0x7cb87f, light2: 0xc9a86a, shapes: [
+        { geo: "icosahedron", color: 0x7cb87f }, { geo: "torusKnot", color: 0xc9a86a, wireframe: true }, { geo: "octahedron", color: 0x6aa8a0 }
+      ]}
+    },
+    ocean: {
+      label: "Deep Ocean", swatch: ["#020d16", "#1fb6d6", "#5ef2c0"],
+      vars: { bg:"#020d16", bg2:"#04141f", panel:"#061a28", panel2:"#092233", white:"#e6f7fb", "white-dark":"#cdeef5",
+        muted:"#6fa9bd", orange:"#1fb6d6", orange2:"#5ef2c0", "orange-dark":"#158ea6", line:"rgba(31,182,214,.22)",
+        glass:"rgba(31,182,214,.06)", purple:"#4f7fd9", cyan:"#1fb6d6", green:"#5ef2c0",
+        "font-heading":"'Sora', sans-serif", "font-body":"'Sora', sans-serif",
+        "radius-sm":"8px", "radius-md":"14px", "radius-lg":"22px", "radius-xl":"30px", "heading-tracking":"-.5px",
+        "studio-bg1":"#061a28", "studio-bg2":"#092233", "studio-ink":"#e6f7fb", "studio-ink-soft":"#c3e6ef",
+        "studio-muted":"#6fa9bd", "studio-card":"#082035", "studio-border":"#154458", "studio-border-soft":"#0f3345",
+        "studio-input-bg":"#031120", "studio-active-bg":"#1fb6d6", "studio-active-text":"#020d16", "hero-opacity":".65" },
+      three: { mode: "particles", speed: .5, light1: 0x1fb6d6, light2: 0x5ef2c0, particleCount: 1100, particleColor: 0x5ef2c0, particleSpread: 100, shapes: [
+        { geo: "sphere", color: 0x1fb6d6, wireframe: true }
+      ]}
+    },
+    brutalist: {
+      label: "Crimson Brutalist", swatch: ["#0a0a0a", "#e5231b", "#f2f2f2"],
+      vars: { bg:"#0a0a0a", bg2:"#0a0a0a", panel:"#111111", panel2:"#161616", white:"#f2f2f2", "white-dark":"#e0e0e0",
+        muted:"#8a8a8a", orange:"#e5231b", orange2:"#ff4c42", "orange-dark":"#b01712", line:"rgba(242,242,242,.15)",
+        glass:"rgba(229,35,27,.06)", purple:"#e5231b", cyan:"#f2f2f2", green:"#e5231b",
+        "font-heading":"'Bebas Neue', sans-serif", "font-body":"'JetBrains Mono', monospace",
+        "radius-sm":"0px", "radius-md":"0px", "radius-lg":"0px", "radius-xl":"0px", "heading-tracking":"1px",
+        "studio-bg1":"#0a0a0a", "studio-bg2":"#111111", "studio-ink":"#f2f2f2", "studio-ink-soft":"#cccccc",
+        "studio-muted":"#8a8a8a", "studio-card":"#141414", "studio-border":"#e5231b", "studio-border-soft":"#3a3a3a",
+        "studio-input-bg":"#0a0a0a", "studio-active-bg":"#e5231b", "studio-active-text":"#0a0a0a", "hero-opacity":".7" },
+      three: { mode: "shapes", speed: 1.6, light1: 0xe5231b, light2: 0xf2f2f2, shapes: [
+        { geo: "box", color: 0xe5231b }, { geo: "tetrahedron", color: 0xf2f2f2, wireframe: true }, { geo: "ring", color: 0xe5231b, wireframe: true }
+      ]}
+    },
+    pastel: {
+      label: "Pastel Dream", swatch: ["#fdf1f6", "#f6a6c1", "#a6c8f6"],
+      vars: { bg:"#fdf1f6", bg2:"#fbe8f0", panel:"#ffffff", panel2:"#fdf4f8", white:"#4a3b45", "white-dark":"#6b5560",
+        muted:"#b899a8", orange:"#f6a6c1", orange2:"#a6c8f6", "orange-dark":"#e888ab", line:"rgba(246,166,193,.3)",
+        glass:"rgba(246,166,193,.08)", purple:"#c6a6f6", cyan:"#a6e8f0", green:"#b6e6c1",
+        "font-heading":"'Poppins', sans-serif", "font-body":"'Poppins', sans-serif",
+        "radius-sm":"16px", "radius-md":"22px", "radius-lg":"30px", "radius-xl":"40px", "heading-tracking":"0px",
+        "studio-bg1":"#fdf1f6", "studio-bg2":"#ffffff", "studio-ink":"#4a3b45", "studio-ink-soft":"#6b5560",
+        "studio-muted":"#b899a8", "studio-card":"#ffffff", "studio-border":"#f6d3e0", "studio-border-soft":"#fbe4ec",
+        "studio-input-bg":"#fdf7fa", "studio-active-bg":"#f6a6c1", "studio-active-text":"#ffffff", "hero-opacity":".5" },
+      three: { mode: "orbit", speed: .4, light1: 0xf6a6c1, light2: 0xa6c8f6, core: { geo: "sphere", color: 0xf6a6c1, wireframe: false }, satellites: 6, satColor: 0xa6c8f6 }
+    },
+    matrix: {
+      label: "Matrix Terminal", swatch: ["#000000", "#00ff41", "#003b0f"],
+      vars: { bg:"#000000", bg2:"#000a02", panel:"#001505", panel2:"#001f08", white:"#c8ffcf", "white-dark":"#8fffa0",
+        muted:"#3f8a4f", orange:"#00ff41", orange2:"#66ff8f", "orange-dark":"#00b82e", line:"rgba(0,255,65,.2)",
+        glass:"rgba(0,255,65,.05)", purple:"#00ff41", cyan:"#00ff41", green:"#00ff41",
+        "font-heading":"'JetBrains Mono', monospace", "font-body":"'JetBrains Mono', monospace",
+        "radius-sm":"0px", "radius-md":"2px", "radius-lg":"2px", "radius-xl":"2px", "heading-tracking":"0px",
+        "studio-bg1":"#000000", "studio-bg2":"#000a02", "studio-ink":"#c8ffcf", "studio-ink-soft":"#9dffb0",
+        "studio-muted":"#3f8a4f", "studio-card":"#000f03", "studio-border":"#0f4a1e", "studio-border-soft":"#0a3315",
+        "studio-input-bg":"#000000", "studio-active-bg":"#00ff41", "studio-active-text":"#000000", "hero-opacity":".9" },
+      three: { mode: "particles", speed: 1, light1: 0x00ff41, light2: 0x00ff41, particleCount: 1400, particleColor: 0x00ff41, particleSpread: 110, shapes: [
+        { geo: "box", color: 0x00ff41, wireframe: true }
+      ]}
+    },
+    solar: {
+      label: "Solar Flare", swatch: ["#1a0500", "#ff5e00", "#ffd23f"],
+      vars: { bg:"#1a0500", bg2:"#220800", panel:"#2b0c00", panel2:"#361200", white:"#fff3e0", "white-dark":"#ffe0b8",
+        muted:"#c98a5a", orange:"#ff5e00", orange2:"#ffd23f", "orange-dark":"#cc4a00", line:"rgba(255,210,63,.2)",
+        glass:"rgba(255,94,0,.08)", purple:"#ff8a3f", cyan:"#ffd23f", green:"#ff9d3f",
+        "font-heading":"'Unbounded', sans-serif", "font-body":"'Outfit', sans-serif",
+        "radius-sm":"6px", "radius-md":"10px", "radius-lg":"16px", "radius-xl":"999px", "heading-tracking":"-1px",
+        "studio-bg1":"#2b0c00", "studio-bg2":"#361200", "studio-ink":"#fff3e0", "studio-ink-soft":"#ffdcb0",
+        "studio-muted":"#c98a5a", "studio-card":"#2f0e00", "studio-border":"#5c2400", "studio-border-soft":"#461b00",
+        "studio-input-bg":"#210700", "studio-active-bg":"#ff5e00", "studio-active-text":"#1a0500", "hero-opacity":".7" },
+      three: { mode: "particles", speed: 1.3, light1: 0xff5e00, light2: 0xffd23f, particleCount: 800, particleColor: 0xffd23f, particleSpread: 80, shapes: [
+        { geo: "sphere", color: 0xff5e00 }
+      ]}
+    },
+    ice: {
+      label: "Ice Crystal", swatch: ["#eef6fb", "#5fb8e8", "#ffffff"],
+      vars: { bg:"#eef6fb", bg2:"#e3f1fa", panel:"#ffffff", panel2:"#f4fafd", white:"#0f2a3d", "white-dark":"#1e3f56",
+        muted:"#6d94ab", orange:"#5fb8e8", orange2:"#bfe6f7", "orange-dark":"#3a97c9", line:"rgba(95,184,232,.25)",
+        glass:"rgba(95,184,232,.08)", purple:"#8ab6e8", cyan:"#5fb8e8", green:"#7fd6c4",
+        "font-heading":"'Outfit', sans-serif", "font-body":"'Inter', sans-serif",
+        "radius-sm":"10px", "radius-md":"16px", "radius-lg":"24px", "radius-xl":"32px", "heading-tracking":"-.5px",
+        "studio-bg1":"#eef6fb", "studio-bg2":"#ffffff", "studio-ink":"#0f2a3d", "studio-ink-soft":"#33546a",
+        "studio-muted":"#6d94ab", "studio-card":"#ffffff", "studio-border":"#cfe6f4", "studio-border-soft":"#e0eff8",
+        "studio-input-bg":"#f5fafd", "studio-active-bg":"#5fb8e8", "studio-active-text":"#ffffff", "hero-opacity":".55" },
+      three: { mode: "shapes", speed: .5, light1: 0x5fb8e8, light2: 0xffffff, shapes: [
+        { geo: "octahedron", color: 0x5fb8e8, wireframe: true }, { geo: "icosahedron", color: 0xbfe6f7, wireframe: true }, { geo: "tetrahedron", color: 0x8ab6e8, wireframe: true }
+      ]}
+    },
+    galaxy: {
+      label: "Galaxy Nebula", swatch: ["#0a0420", "#a259ff", "#59c9ff"],
+      vars: { bg:"#0a0420", bg2:"#0f0630", panel:"#130940", panel2:"#180c4c", white:"#f1ecff", "white-dark":"#ddd2ff",
+        muted:"#9a89c9", orange:"#a259ff", orange2:"#59c9ff", "orange-dark":"#7d3fd9", line:"rgba(162,89,255,.25)",
+        glass:"rgba(162,89,255,.06)", purple:"#a259ff", cyan:"#59c9ff", green:"#59ffb0",
+        "font-heading":"'Audiowide', sans-serif", "font-body":"'Sora', sans-serif",
+        "radius-sm":"10px", "radius-md":"16px", "radius-lg":"999px", "radius-xl":"999px", "heading-tracking":"0px",
+        "studio-bg1":"#130940", "studio-bg2":"#180c4c", "studio-ink":"#f1ecff", "studio-ink-soft":"#d3c5ff",
+        "studio-muted":"#9a89c9", "studio-card":"#150b48", "studio-border":"#3a1f7a", "studio-border-soft":"#2a1560",
+        "studio-input-bg":"#0e0638", "studio-active-bg":"#a259ff", "studio-active-text":"#0a0420", "hero-opacity":".75" },
+      three: { mode: "orbit", speed: .7, light1: 0xa259ff, light2: 0x59c9ff, core: { geo: "icosahedron", color: 0xa259ff, wireframe: false }, satellites: 8, satColor: 0x59c9ff, particleCount: 700, particleColor: 0xffffff }
+    },
+    copper: {
+      label: "Copper Industrial", swatch: ["#161311", "#c9793f", "#8a8578"],
+      vars: { bg:"#161311", bg2:"#1c1815", panel:"#201b17", panel2:"#28221d", white:"#eee6dc", "white-dark":"#d9cdbd",
+        muted:"#9c8f7f", orange:"#c9793f", orange2:"#e6a15f", "orange-dark":"#a15c28", line:"rgba(201,121,63,.22)",
+        glass:"rgba(201,121,63,.06)", purple:"#8a8578", cyan:"#7f9c92", green:"#8f9c7f",
+        "font-heading":"'Bebas Neue', sans-serif", "font-body":"'Inter', sans-serif",
+        "radius-sm":"2px", "radius-md":"4px", "radius-lg":"6px", "radius-xl":"8px", "heading-tracking":".5px",
+        "studio-bg1":"#201b17", "studio-bg2":"#28221d", "studio-ink":"#eee6dc", "studio-ink-soft":"#cabfae",
+        "studio-muted":"#9c8f7f", "studio-card":"#221d19", "studio-border":"#4a3d30", "studio-border-soft":"#3a2f25",
+        "studio-input-bg":"#181410", "studio-active-bg":"#c9793f", "studio-active-text":"#161311", "hero-opacity":".55" },
+      three: { mode: "shapes", speed: .35, light1: 0xc9793f, light2: 0xe6a15f, shapes: [
+        { geo: "torus", color: 0xc9793f }, { geo: "ring", color: 0xe6a15f, wireframe: true }, { geo: "dodecahedron", color: 0x8a8578, wireframe: true }
+      ]}
+    },
+    prism: {
+      label: "Holographic Prism", swatch: ["#0b0b12", "#ff9ff3", "#9ffff0"],
+      vars: { bg:"#0b0b12", bg2:"#101018", panel:"#14141f", panel2:"#191926", white:"#f5f5ff", "white-dark":"#e0e0f5",
+        muted:"#9494b8", orange:"#ff9ff3", orange2:"#9ffff0", "orange-dark":"#d976c9", line:"rgba(255,159,243,.2)",
+        glass:"rgba(159,255,240,.06)", purple:"#c99fff", cyan:"#9ffff0", green:"#9fffc0",
+        "font-heading":"'Unbounded', sans-serif", "font-body":"'Inter', sans-serif",
+        "radius-sm":"8px", "radius-md":"14px", "radius-lg":"20px", "radius-xl":"28px", "heading-tracking":"-.5px",
+        "studio-bg1":"#14141f", "studio-bg2":"#191926", "studio-ink":"#f5f5ff", "studio-ink-soft":"#dcdcf2",
+        "studio-muted":"#9494b8", "studio-card":"#16162280", "studio-border":"#3a3a52", "studio-border-soft":"#2a2a3c",
+        "studio-input-bg":"#101018", "studio-active-bg":"#ff9ff3", "studio-active-text":"#0b0b12", "hero-opacity":".8" },
+      three: { mode: "particles", speed: .9, light1: 0xff9ff3, light2: 0x9ffff0, particleCount: 1000, particleColor: 0x9ffff0, particleSpread: 95, shapes: [
+        { geo: "octahedron", color: 0xff9ff3, wireframe: true }, { geo: "torusKnot", color: 0x9ffff0, wireframe: true }
+      ]}
+    },
+  };
+
+  const DEFAULT_VARS_SNAPSHOT = {}; // captured on first run so "default" can always restore exactly
+  let currentThemeId = "default";
+
+  function applyTheme(id) {
+    const theme = THEME_DEFS[id];
+    if (!theme) return;
+    const root = document.documentElement.style;
+
+    if (id === "default") {
+      // restore every var we've ever overridden back to its stylesheet default
+      Object.keys(DEFAULT_VARS_SNAPSHOT).forEach((k) => root.setProperty("--" + k, DEFAULT_VARS_SNAPSHOT[k]));
+    } else {
+      Object.entries(theme.vars).forEach(([k, v]) => {
+        if (!(k in DEFAULT_VARS_SNAPSHOT)) {
+          DEFAULT_VARS_SNAPSHOT[k] = getComputedStyle(document.documentElement).getPropertyValue("--" + k).trim();
+        }
+        root.setProperty("--" + k, v);
+      });
+    }
+
+    document.body.dataset.theme = id;
+    currentThemeId = id;
+    rebuild3D(theme.three);
+    updateThemePanelActive();
+  }
+
+  // ---------- Customization panel UI ----------
+  function buildThemePanel() {
+    const grid = document.getElementById("themeGrid");
+    if (!grid) return;
+    grid.innerHTML = "";
+    Object.entries(THEME_DEFS).forEach(([id, t]) => {
+      const card = document.createElement("button");
+      card.type = "button";
+      card.className = "theme-swatch-btn";
+      card.dataset.themeId = id;
+      card.innerHTML = `
+        <span class="theme-swatch-preview">
+          <span style="background:${t.swatch[0]}"></span>
+          <span style="background:${t.swatch[1]}"></span>
+          <span style="background:${t.swatch[2]}"></span>
+        </span>
+        <span class="theme-swatch-label">${t.label}</span>
+      `;
+      card.onclick = () => applyTheme(id);
+      grid.appendChild(card);
+    });
+    updateThemePanelActive();
+  }
+
+  function updateThemePanelActive() {
+    document.querySelectorAll(".theme-swatch-btn").forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.themeId === currentThemeId);
+    });
+  }
+
+  function toggleThemePanel() {
+    document.getElementById("themePanel").classList.toggle("open");
+  }
+
+  document.addEventListener("DOMContentLoaded", buildThemePanel);
 </script>
 
 </body>
