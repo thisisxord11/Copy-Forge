@@ -1,0 +1,4158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Copyforge Pro — AI Content Studio by Abubakar Siddique</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Inter:wght@400;500;600;700&family=Orbitron:wght@500;700;900&family=Playfair+Display:wght@700;800;900&family=Press+Start+2P&family=VT323&family=Space+Grotesk:wght@500;700&family=Fraunces:wght@600;700;900&family=Sora:wght@500;700;800&family=Bebas+Neue&family=Poppins:wght@500;700;800&family=JetBrains+Mono:wght@500;700&family=Unbounded:wght@600;800&family=Outfit:wght@500;700;800&family=Audiowide&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --bg2: #0f0f0f;
+      --panel: #111;
+      --panel2: #161616;
+      --white: #f5f1e8;
+      --white-dark: #e8e4d8;
+      --muted: #999;
+      --orange: #ff572f;
+      --orange2: #ff8a65;
+      --orange-dark: #e64e26;
+      --line: rgba(255, 255, 255, .1);
+      --glass: rgba(255, 255, 255, .045);
+      --purple: #7c3aed;
+      --cyan: #06b6d4;
+      --green: #10b981;
+
+      /* ---- theming: fonts & shape ---- */
+      --font-heading: 'Montserrat', sans-serif;
+      --font-body: 'Inter', sans-serif;
+      --radius-sm: 6px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --radius-xl: 20px;
+      --heading-tracking: -1px;
+
+      /* ---- theming: light "studio" panel palette ---- */
+      --studio-bg1: #f3eee4;
+      --studio-bg2: #fffaf0;
+      --studio-ink: #111;
+      --studio-ink-soft: #333;
+      --studio-muted: #666;
+      --studio-card: #fff;
+      --studio-border: #e0d5c7;
+      --studio-border-soft: #d5cec0;
+      --studio-input-bg: #faf7f0;
+      --studio-active-bg: #111;
+      --studio-active-text: #fff;
+
+      /* ---- theming: 3D hero fx ---- */
+      --hero-opacity: .5;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: var(--font-body);
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 999;
+      opacity: .02;
+      background-image: radial-gradient(circle at 20% 50%, rgba(255, 87, 47, .3) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(124, 58, 237, .2) 0%, transparent 50%);
+      mix-blend-mode: screen;
+    }
+
+    /* ========== CURSOR ========== */
+    .cursor {
+      position: fixed;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--orange);
+      pointer-events: none;
+      z-index: 10000;
+      transform: translate(-50%, -50%);
+      mix-blend-mode: lighten;
+      box-shadow: 0 0 20px var(--orange);
+    }
+
+    .cursor-ring {
+      position: fixed;
+      width: 45px;
+      height: 45px;
+      border: 2px solid var(--orange);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: all .3s cubic-bezier(.2, .8, .2, 1);
+      opacity: .6;
+    }
+
+    body.hovering .cursor-ring {
+      width: 80px;
+      height: 80px;
+      border-color: var(--orange2);
+      opacity: 1;
+      box-shadow: 0 0 40px rgba(255, 87, 47, .5);
+    }
+
+    /* ========== NAVBAR ========== */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 5vw;
+      z-index: 500;
+      background: linear-gradient(to bottom, var(--bg), transparent);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .logo {
+      font-family: var(--font-heading);
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: -1px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo span {
+      color: var(--orange);
+    }
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--orange), var(--orange2));
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      color: white;
+      font-size: 18px;
+    }
+
+    .nav-items {
+      display: flex;
+      gap: 30px;
+      align-items: center;
+    }
+
+    .nav-link {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: .3s;
+      position: relative;
+    }
+
+    .nav-link:hover {
+      color: var(--orange);
+    }
+
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--orange);
+      transition: width .3s;
+    }
+
+    .nav-link:hover::after {
+      width: 100%;
+    }
+
+    .btn {
+      position: relative;
+      overflow: hidden;
+      border: 0;
+      cursor: pointer;
+      padding: 12px 24px;
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: .5px;
+      transition: .3s;
+      border-radius: var(--radius-md);
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, .2);
+      transition: left .3s;
+      z-index: -1;
+    }
+
+    .btn:hover::before {
+      left: 100%;
+    }
+
+    .btn-primary {
+      background: var(--orange);
+      color: white;
+      box-shadow: 0 10px 30px rgba(255, 87, 47, .3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 45px rgba(255, 87, 47, .5);
+    }
+
+    .btn-outline {
+      background: rgba(255, 255, 255, .05);
+      color: white;
+      border: 1.5px solid rgba(255, 255, 255, .15);
+      backdrop-filter: blur(10px);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--orange);
+      color: var(--orange2);
+      background: rgba(255, 87, 47, .05);
+    }
+
+    /* ========== HERO SECTION ========== */
+    .hero {
+      position: relative;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 20px;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 50%, rgba(255, 87, 47, .1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    #heroCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: var(--hero-opacity);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 10;
+      max-width: 800px;
+      animation: fadeInUp 1s ease-out;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero-badge {
+      display: inline-block;
+      padding: 8px 16px;
+      background: rgba(255, 87, 47, .1);
+      border: 1px solid rgba(255, 87, 47, .3);
+      border-radius: var(--radius-xl);
+      color: var(--orange2);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      margin-bottom: 20px;
+      backdrop-filter: blur(10px);
+    }
+
+    .hero-content h1 {
+      font-family: var(--font-heading);
+      font-size: clamp(48px, 12vw, 120px);
+      font-weight: 900;
+      line-height: .95;
+      letter-spacing: -3px;
+      margin-bottom: 25px;
+      background: linear-gradient(135deg, var(--white) 0%, var(--orange) 50%, var(--orange2) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-content p {
+      color: var(--muted);
+      font-size: 18px;
+      max-width: 500px;
+      margin: 0 auto 40px;
+      line-height: 1.8;
+      font-weight: 400;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 50px;
+    }
+
+    .scroll-indicator {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(-10px); }
+    }
+
+    .scroll-text {
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: 2px;
+    }
+
+    .scroll-icon {
+      width: 24px;
+      height: 40px;
+      border: 2px solid var(--orange);
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 8px;
+    }
+
+    .scroll-dot {
+      width: 4px;
+      height: 4px;
+      background: var(--orange);
+      border-radius: 50%;
+      animation: scrollDot 1.5s infinite;
+    }
+
+    @keyframes scrollDot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: .3; }
+    }
+
+    /* ========== STATS SECTION ========== */
+    .stats-section {
+      padding: 80px 6vw;
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 30px;
+    }
+
+    .stat-card {
+      background: linear-gradient(145deg, rgba(255, 255, 255, .05), rgba(255, 255, 255, .01));
+      border: 1px solid var(--line);
+      padding: 30px;
+      border-radius: var(--radius-lg);
+      backdrop-filter: blur(10px);
+      text-align: center;
+      transition: all .3s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--orange);
+      background: linear-gradient(145deg, rgba(255, 87, 47, .1), rgba(255, 87, 47, .05));
+    }
+
+    .stat-number {
+      font-family: var(--font-heading);
+      font-size: 48px;
+      font-weight: 900;
+      color: var(--orange);
+      margin-bottom: 10px;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    /* ========== FEATURES GRID ========== */
+    .features-section {
+      padding: 100px 6vw;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 70px;
+    }
+
+    .section-label {
+      color: var(--orange2);
+      font-size: 12px;
+      letter-spacing: 3px;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 15px;
+    }
+
+    .section-title {
+      font-family: var(--font-heading);
+      font-size: clamp(36px, 7vw, 80px);
+      font-weight: 900;
+      letter-spacing: -2px;
+      margin-bottom: 20px;
+    }
+
+    .section-description {
+      color: var(--muted);
+      font-size: 16px;
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+      margin-top: 50px;
+    }
+
+    .feature-card {
+      position: relative;
+      background: linear-gradient(145deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .02));
+      border: 1px solid var(--line);
+      padding: 40px;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      cursor: pointer;
+      transition: all .3s cubic-bezier(.2, .8, .2, 1);
+      backdrop-filter: blur(15px);
+      min-height: 350px;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--orange), var(--orange2));
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform .3s;
+    }
+
+    .feature-card:hover::before {
+      transform: scaleX(1);
+    }
+
+    .feature-card:hover {
+      transform: translateY(-10px) rotateX(3deg);
+      border-color: var(--orange);
+      background: linear-gradient(145deg, rgba(255, 87, 47, .1), rgba(255, 87, 47, .05));
+    }
+
+    .feature-icon {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, var(--orange), var(--orange2));
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 30px rgba(255, 87, 47, .3);
+    }
+
+    .feature-title {
+      font-family: var(--font-heading);
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .feature-description {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.8;
+      margin-bottom: 20px;
+    }
+
+    .feature-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .feature-list li {
+      color: var(--muted);
+      font-size: 13px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .feature-list li::before {
+      content: '✓';
+      color: var(--orange);
+      font-weight: 900;
+      flex-shrink: 0;
+    }
+
+    /* ========== INDUSTRIES SECTION ========== */
+    .industries-section {
+      padding: 100px 6vw;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .industries-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 25px;
+      margin-top: 50px;
+    }
+
+    .industry-card {
+      position: relative;
+      min-height: 320px;
+      padding: 35px;
+      border: 1px solid rgba(255, 255, 255, .09);
+      background: linear-gradient(145deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .02));
+      overflow: hidden;
+      cursor: pointer;
+      transition: all .3s cubic-bezier(.2, .8, .2, 1);
+      border-radius: var(--radius-lg);
+      backdrop-filter: blur(10px);
+    }
+
+    .industry-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200px;
+      height: 200px;
+      background: var(--orange);
+      opacity: .05;
+      border-radius: 50%;
+      filter: blur(80px);
+      transition: all .5s;
+    }
+
+    .industry-card:hover::before {
+      opacity: .15;
+      transform: scale(1.2);
+    }
+
+    .industry-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(255, 87, 47, .6);
+      box-shadow: 0 25px 60px rgba(255, 87, 47, .1);
+    }
+
+    .industry-number {
+      font-family: var(--font-heading);
+      font-size: 14px;
+      font-weight: 900;
+      color: var(--orange);
+      letter-spacing: 2px;
+      margin-bottom: 20px;
+    }
+
+    .industry-icon {
+      font-size: 50px;
+      margin-bottom: 20px;
+      opacity: .6;
+      transition: all .3s;
+    }
+
+    .industry-card:hover .industry-icon {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+
+    .industry-title {
+      font-family: var(--font-heading);
+      font-size: 24px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .industry-description {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+      margin-bottom: 25px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .industry-link {
+      display: inline-flex;
+      gap: 8px;
+      color: var(--orange);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-decoration: none;
+      align-items: center;
+      transition: all .3s;
+      position: relative;
+      z-index: 2;
+    }
+
+    .industry-link:hover {
+      gap: 12px;
+    }
+
+    /* ========== STUDIO SECTION ========== */
+    #studio {
+      display: none;
+      min-height: 100vh;
+      background: linear-gradient(135deg, var(--studio-bg1) 0%, var(--studio-bg2) 100%);
+      color: var(--studio-ink);
+      padding: 50px 40px;
+    }
+
+    .studio-container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .studio-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 50px;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .studio-title {
+      font-family: var(--font-heading);
+      font-size: 48px;
+      font-weight: 900;
+      letter-spacing: -2px;
+    }
+
+    .studio-info {
+      background: rgba(255, 87, 47, .05);
+      border: 1px solid rgba(255, 87, 47, .2);
+      padding: 12px 20px;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      color: var(--studio-muted);
+    }
+
+    .close-studio-btn {
+      background: linear-gradient(135deg, var(--orange), var(--orange2));
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      cursor: pointer;
+      border-radius: var(--radius-md);
+      font-weight: 700;
+      transition: all .3s;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .close-studio-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(255, 87, 47, .3);
+    }
+
+    .studio-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 50px;
+      overflow-x: auto;
+      padding-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      padding: 12px 20px;
+      border: 1.5px solid var(--studio-border-soft);
+      background: var(--studio-card);
+      cursor: pointer;
+      border-radius: var(--radius-md);
+      font-weight: 700;
+      font-size: 13px;
+      transition: all .3s;
+      white-space: nowrap;
+      position: relative;
+    }
+
+    .tab-btn::after {
+      content: '';
+      position: absolute;
+      bottom: -1.5px;
+      left: 0;
+      width: 0;
+      height: 3px;
+      background: var(--orange);
+      border-radius: 3px 3px 0 0;
+      transition: width .3s;
+    }
+
+    .tab-btn.active {
+      background: var(--studio-active-bg);
+      color: var(--studio-active-text);
+      border-color: var(--studio-active-bg);
+    }
+
+    .tab-btn.active::after {
+      width: 100%;
+    }
+
+    .tab-btn:hover:not(.active) {
+      border-color: var(--orange);
+      background: rgba(255, 87, 47, .02);
+    }
+
+    .panel-title {
+      font-family: var(--font-heading);
+      font-size: 42px;
+      font-weight: 900;
+      letter-spacing: -1px;
+      margin-bottom: 15px;
+    }
+
+    .panel-description {
+      color: var(--studio-muted);
+      font-size: 15px;
+      line-height: 1.8;
+      margin-bottom: 40px;
+    }
+
+    .form-section {
+      background: var(--studio-card);
+      border: 1px solid var(--studio-border);
+      padding: 40px;
+      border-radius: var(--radius-lg);
+      margin-bottom: 30px;
+    }
+
+    .form-section-title {
+      font-family: var(--font-heading);
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 20px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .form-section-title::before {
+      content: '';
+      width: 4px;
+      height: 24px;
+      background: var(--orange);
+      border-radius: 2px;
+    }
+
+    .fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .fields.single {
+      grid-template-columns: 1fr;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .field label {
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .3px;
+      color: var(--studio-ink-soft);
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      padding: 14px;
+      border: 1.5px solid var(--studio-border);
+      background: var(--studio-input-bg);
+      outline: none;
+      color: var(--studio-ink);
+      font-family: inherit;
+      border-radius: var(--radius-md);
+      transition: all .3s;
+      font-size: 14px;
+    }
+
+    .field textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      border-color: var(--orange);
+      box-shadow: 0 0 0 4px rgba(255, 87, 47, .1);
+      background: var(--studio-card);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 15px;
+      margin-top: 30px;
+    }
+
+    .generate-btn {
+      flex: 1;
+      padding: 16px 30px;
+      border: 0;
+      background: linear-gradient(135deg, var(--orange), var(--orange2));
+      color: white;
+      font-family: var(--font-heading);
+      font-weight: 800;
+      cursor: pointer;
+      border-radius: var(--radius-md);
+      transition: all .3s;
+      font-size: 14px;
+      letter-spacing: 1px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .generate-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, .3);
+      transition: left .5s;
+    }
+
+    .generate-btn:hover::before {
+      left: 100%;
+    }
+
+    .generate-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 45px rgba(255, 87, 47, .4);
+    }
+
+    .generate-btn:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .clear-btn {
+      padding: 16px 30px;
+      border: 1.5px solid var(--studio-border-soft);
+      background: var(--studio-card);
+      color: var(--studio-ink);
+      font-family: var(--font-heading);
+      font-weight: 700;
+      cursor: pointer;
+      border-radius: var(--radius-md);
+      transition: all .3s;
+      font-size: 14px;
+    }
+
+    .clear-btn:hover {
+      border-color: var(--orange);
+      color: var(--orange);
+    }
+
+    .results {
+      margin-top: 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .result-header {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .result-header h3 {
+      font-family: var(--font-heading);
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .result-counter {
+      background: var(--orange);
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 12px;
+    }
+
+    .result-card {
+      position: relative;
+      background: var(--studio-card);
+      border: 1.5px solid var(--studio-border);
+      padding: 25px;
+      border-left: 5px solid var(--orange);
+      border-radius: var(--radius-md);
+      animation: slideIn .5s ease both;
+    }
+
+    .result-card:nth-child(2) {
+      animation-delay: .1s;
+    }
+
+    .result-card:nth-child(3) {
+      animation-delay: .2s;
+    }
+
+    .result-card:nth-child(4) {
+      animation-delay: .3s;
+    }
+
+    .result-card:nth-child(5) {
+      animation-delay: .4s;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .result-text {
+      font-size: 14px;
+      line-height: 1.8;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      padding-right: 70px;
+      color: var(--studio-ink-soft);
+      font-weight: 500;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: linear-gradient(135deg, var(--orange), var(--orange2));
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      cursor: pointer;
+      font-size: 11px;
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      letter-spacing: .5px;
+      transition: all .2s;
+    }
+
+    .copy-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(255, 87, 47, .3);
+    }
+
+    .loading {
+      background: linear-gradient(90deg, #e7dfd1, #fffaf0, #e7dfd1);
+      background-size: 300% 100%;
+      animation: shimmer 1.5s infinite;
+      height: 80px;
+      border-radius: var(--radius-md);
+      margin: 20px 0;
+    }
+
+    @keyframes shimmer {
+      to {
+        background-position: -300% 0;
+      }
+    }
+
+    .error {
+      padding: 20px;
+      color: #b73520;
+      background: #fff4ef;
+      border: 1.5px solid #edc8bd;
+      border-radius: var(--radius-md);
+      margin: 20px 0;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+    }
+
+    .empty-icon {
+      font-size: 60px;
+      margin-bottom: 20px;
+    }
+
+    .empty-text {
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+
+    /* ========== FOOTER ========== */
+    .footer {
+      padding: 60px 6vw;
+      border-top: 1px solid var(--line);
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .footer-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+
+    .footer-section h3 {
+      font-family: var(--font-heading);
+      font-size: 16px;
+      font-weight: 800;
+      margin-bottom: 15px;
+      color: var(--white);
+    }
+
+    .footer-section a {
+      display: block;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      margin-bottom: 10px;
+      transition: .3s;
+    }
+
+    .footer-section a:hover {
+      color: var(--orange);
+    }
+
+    .footer-bottom {
+      border-top: 1px solid var(--line);
+      padding-top: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+      font-size: 13px;
+      color: var(--studio-muted);
+    }
+
+    .footer-credits {
+      color: var(--orange);
+      font-weight: 600;
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 1024px) {
+      .fields {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-content h1 {
+        font-size: 48px;
+      }
+
+      .form-section {
+        padding: 30px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .navbar {
+        height: 70px;
+        padding: 0 20px;
+      }
+
+      .nav-items {
+        gap: 15px;
+      }
+
+      .nav-link {
+        display: none;
+      }
+
+      .hero {
+        height: auto;
+        min-height: 80vh;
+        padding-top: 100px;
+      }
+
+      .hero-content h1 {
+        font-size: 32px;
+      }
+
+      .hero-content p {
+        font-size: 16px;
+      }
+
+      .hero-actions {
+        flex-direction: column;
+      }
+
+      .hero-actions .btn {
+        width: 100%;
+      }
+
+      .features-grid,
+      .industries-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .feature-card,
+      .industry-card {
+        min-height: 280px;
+      }
+
+      .studio-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .studio-tabs {
+        width: 100%;
+      }
+
+      .btn-group {
+        flex-direction: column;
+      }
+
+      #studio {
+        padding: 30px 20px;
+      }
+
+      .form-section {
+        padding: 25px;
+      }
+    }
+
+    /* ========== ANIMATIONS ========== */
+    .fade-in {
+      animation: fadeIn .6s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    .slide-in-left {
+      animation: slideInLeft .6s ease-out;
+    }
+
+    @keyframes slideInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .pulse {
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: .5;
+      }
+    }
+
+    /* ========== UI CUSTOMIZATION ========== */
+    .theme-fab {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      z-index: 800;
+      background: linear-gradient(135deg, var(--orange), var(--orange2));
+      box-shadow: 0 10px 30px rgba(0, 0, 0, .4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      transition: transform .3s, box-shadow .3s;
+    }
+
+    .theme-fab:hover {
+      transform: scale(1.08) rotate(-8deg);
+      box-shadow: 0 14px 40px rgba(0, 0, 0, .5);
+    }
+
+    .theme-panel-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .5);
+      z-index: 850;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .3s;
+    }
+
+    .theme-panel.open ~ .theme-panel-backdrop {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .theme-panel {
+      position: fixed;
+      top: 0;
+      right: -380px;
+      width: 360px;
+      max-width: 92vw;
+      height: 100vh;
+      background: var(--panel);
+      border-left: 1px solid var(--line);
+      z-index: 900;
+      transition: right .35s cubic-bezier(.2, .8, .2, 1);
+      display: flex;
+      flex-direction: column;
+      padding: 28px 22px;
+      overflow-y: auto;
+    }
+
+    .theme-panel.open {
+      right: 0;
+    }
+
+    .theme-panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 22px;
+    }
+
+    .theme-panel-title {
+      font-family: var(--font-heading);
+      font-weight: 800;
+      font-size: 20px;
+      color: var(--white);
+    }
+
+    .theme-panel-subtitle {
+      font-family: var(--font-body);
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .theme-panel-close {
+      background: var(--glass);
+      border: 1px solid var(--line);
+      color: var(--white);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .theme-swatch-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .theme-swatch-btn {
+      background: var(--glass);
+      border: 1.5px solid var(--line);
+      border-radius: var(--radius-md, 10px);
+      padding: 12px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: all .25s;
+      text-align: left;
+    }
+
+    .theme-swatch-btn:hover {
+      border-color: var(--orange);
+      transform: translateY(-2px);
+    }
+
+    .theme-swatch-btn.active {
+      border-color: var(--orange);
+      box-shadow: 0 0 0 2px var(--orange) inset;
+    }
+
+    .theme-swatch-preview {
+      display: flex;
+      height: 34px;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .theme-swatch-preview span {
+      flex: 1;
+    }
+
+    .theme-swatch-label {
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--white);
+      line-height: 1.3;
+    }
+
+    @media (max-width: 480px) {
+      .theme-swatch-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .theme-fab {
+        bottom: 20px;
+        right: 20px;
+      }
+    }
+
+    /* ============================================================ */
+    /* ========== CREATOR AI PLATFORM (added, light studio) ======= */
+    /* ============================================================ */
+    #creator {
+      display: none;
+      min-height: 100vh;
+      background: linear-gradient(135deg, var(--studio-bg1) 0%, var(--studio-bg2) 100%);
+      color: var(--studio-ink);
+      padding: 50px 40px;
+    }
+
+    .creator-container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .creator-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .creator-heading {
+      font-family: var(--font-heading);
+      font-size: clamp(30px, 5vw, 46px);
+      font-weight: 900;
+      letter-spacing: -1.5px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .creator-sub {
+      color: var(--studio-muted);
+      font-size: 14px;
+      margin-top: 4px;
+    }
+
+    .creator-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .cf-mode-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .3px;
+      border: 1.5px solid var(--studio-border);
+      background: var(--studio-card);
+      color: var(--studio-ink-soft);
+      cursor: pointer;
+      transition: all .25s;
+    }
+    .cf-mode-badge:hover { border-color: var(--orange); }
+    .cf-mode-badge .cf-dot {
+      width: 9px; height: 9px; border-radius: 50%;
+      background: var(--muted); box-shadow: 0 0 0 3px rgba(0,0,0,.05);
+    }
+    .cf-mode-badge.live .cf-dot { background: var(--green); box-shadow: 0 0 8px var(--green); }
+    .cf-mode-badge.offline .cf-dot { background: var(--orange); box-shadow: 0 0 8px rgba(255,87,47,.5); }
+
+    .cf-lang {
+      padding: 8px 12px;
+      border-radius: var(--radius-md);
+      border: 1.5px solid var(--studio-border);
+      background: var(--studio-card);
+      color: var(--studio-ink);
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .creator-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 34px;
+      overflow-x: auto;
+      padding-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .cf-panel-title {
+      font-family: var(--font-heading);
+      font-size: clamp(26px, 4vw, 38px);
+      font-weight: 900;
+      letter-spacing: -1px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .cf-panel-desc {
+      color: var(--studio-muted);
+      font-size: 14px;
+      line-height: 1.7;
+      margin-bottom: 30px;
+      max-width: 680px;
+    }
+
+    .cf-notice {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 14px 16px;
+      border-radius: var(--radius-md);
+      background: rgba(255,87,47,.06);
+      border: 1px solid rgba(255,87,47,.25);
+      color: var(--studio-ink-soft);
+      font-size: 13px;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    .cf-notice.info {
+      background: rgba(6,182,212,.07);
+      border-color: rgba(6,182,212,.3);
+    }
+
+    /* result / output cards */
+    .cf-results {
+      margin-top: 34px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .cf-card {
+      position: relative;
+      background: var(--studio-card);
+      border: 1.5px solid var(--studio-border);
+      border-left: 5px solid var(--orange);
+      border-radius: var(--radius-md);
+      padding: 22px 24px;
+      animation: slideIn .5s ease both;
+    }
+    .cf-card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .cf-card-title {
+      font-family: var(--font-heading);
+      font-size: 16px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+    .cf-card-body {
+      font-size: 14px;
+      line-height: 1.8;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      color: var(--studio-ink-soft);
+      font-weight: 500;
+    }
+    .cf-card-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      flex-shrink: 0;
+    }
+    .cf-act {
+      border: 1.5px solid var(--studio-border-soft);
+      background: var(--studio-input-bg);
+      color: var(--studio-ink-soft);
+      padding: 7px 12px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .4px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all .2s;
+      font-family: inherit;
+    }
+    .cf-act:hover { border-color: var(--orange); color: var(--orange); transform: translateY(-1px); }
+    .cf-act.primary { background: linear-gradient(135deg, var(--orange), var(--orange2)); color:#fff; border-color: transparent; }
+    .cf-act.primary:hover { color:#fff; box-shadow: 0 8px 20px rgba(255,87,47,.3); }
+
+    .cf-meta-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+    .cf-chip {
+      display:inline-flex; align-items:center; gap:6px;
+      padding:5px 11px; border-radius:999px;
+      background: rgba(255,87,47,.08);
+      border:1px solid rgba(255,87,47,.25);
+      color: var(--studio-ink-soft);
+      font-size:11px; font-weight:800; letter-spacing:.3px;
+    }
+    .cf-chip.neutral { background: var(--studio-input-bg); border-color: var(--studio-border-soft); }
+    .cf-chip.hi { background: rgba(16,185,129,.1); border-color: rgba(16,185,129,.35); color: var(--green); }
+    .cf-chip.mid { background: rgba(255,140,40,.1); border-color: rgba(255,140,40,.35); }
+    .cf-chip.lo { background: rgba(183,53,32,.08); border-color: rgba(183,53,32,.3); color:#b73520; }
+
+    /* dashboard grid & score */
+    .cf-grid { display:grid; gap:16px; }
+    .cf-grid.two { grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); }
+    .cf-grid.three { grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); }
+
+    .cf-mini {
+      background: var(--studio-card);
+      border:1.5px solid var(--studio-border);
+      border-radius: var(--radius-md);
+      padding:18px 20px;
+    }
+    .cf-mini h4 {
+      font-family: var(--font-heading);
+      font-size: 13px; font-weight:800; letter-spacing:.3px;
+      margin-bottom:12px; display:flex; align-items:center; gap:8px;
+      text-transform: uppercase; color: var(--studio-ink);
+    }
+    .cf-mini ul { list-style:none; display:flex; flex-direction:column; gap:9px; }
+    .cf-mini li { font-size:13px; line-height:1.6; color: var(--studio-ink-soft); display:flex; gap:9px; align-items:flex-start; }
+    .cf-mini li::before { content:'•'; color: var(--orange); font-weight:900; flex-shrink:0; }
+    .cf-mini li.good::before { content:'✓'; color: var(--green); }
+    .cf-mini li.warn::before { content:'!'; color:#d0821f; }
+    .cf-mini li.fix::before { content:'→'; color: var(--orange); }
+
+    .cf-score-hero {
+      display:flex; align-items:center; gap:26px; flex-wrap:wrap;
+      background: var(--studio-card);
+      border:1.5px solid var(--studio-border);
+      border-radius: var(--radius-lg);
+      padding:26px 30px; margin-bottom:20px;
+    }
+    .cf-ring {
+      --val: 0;
+      width:130px; height:130px; border-radius:50%; flex-shrink:0;
+      background: conic-gradient(var(--orange) calc(var(--val)*1%), var(--studio-input-bg) 0);
+      display:flex; align-items:center; justify-content:center;
+      transition: background 1.1s cubic-bezier(.2,.8,.2,1);
+    }
+    .cf-ring-inner {
+      width:100px; height:100px; border-radius:50%;
+      background: var(--studio-card);
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      border:1px solid var(--studio-border);
+    }
+    .cf-ring-num { font-family:var(--font-heading); font-size:34px; font-weight:900; color:var(--orange); line-height:1; }
+    .cf-ring-lbl { font-size:10px; color:var(--studio-muted); letter-spacing:1px; margin-top:3px; font-weight:700; }
+    .cf-score-hero .cf-score-copy h3 { font-family:var(--font-heading); font-size:22px; font-weight:900; margin-bottom:6px; }
+    .cf-score-hero .cf-score-copy p { font-size:13px; color:var(--studio-muted); line-height:1.6; max-width:420px; }
+
+    .cf-meter-row { margin-bottom:14px; }
+    .cf-meter-row .cf-meter-label { display:flex; justify-content:space-between; font-size:12px; font-weight:800; margin-bottom:6px; color:var(--studio-ink-soft); }
+    .cf-meter { height:9px; background:var(--studio-input-bg); border-radius:999px; overflow:hidden; border:1px solid var(--studio-border-soft); }
+    .cf-meter > span { display:block; height:100%; width:0; border-radius:999px; background:linear-gradient(90deg,var(--orange),var(--orange2)); transition:width 1s cubic-bezier(.2,.8,.2,1); }
+
+    .cf-section-label {
+      font-family:var(--font-heading); font-size:14px; font-weight:900;
+      letter-spacing:.5px; margin:26px 0 14px; display:flex; align-items:center; gap:10px;
+    }
+    .cf-section-label::before { content:''; width:4px; height:20px; background:var(--orange); border-radius:2px; }
+
+    /* staged loader */
+    .cf-stages { display:flex; flex-direction:column; gap:12px; padding:10px 0; }
+    .cf-stage { display:flex; align-items:center; gap:12px; font-size:14px; color:var(--studio-muted); opacity:.5; transition:opacity .3s; }
+    .cf-stage.active { opacity:1; color:var(--studio-ink); font-weight:700; }
+    .cf-stage.done { opacity:1; color:var(--studio-ink-soft); }
+    .cf-stage .cf-spin {
+      width:18px; height:18px; border-radius:50%; flex-shrink:0;
+      border:2px solid var(--studio-border); border-top-color:var(--orange);
+    }
+    .cf-stage.active .cf-spin { animation:cfSpin .8s linear infinite; }
+    .cf-stage.done .cf-spin { border:2px solid var(--green); border-top-color:var(--green); }
+    @keyframes cfSpin { to { transform:rotate(360deg); } }
+
+    .cf-launch-hint { font-size:12px; color:var(--studio-muted); }
+    .cf-toast {
+      position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: var(--studio-active-bg); color: var(--studio-active-text);
+      padding: 12px 22px; border-radius: var(--radius-md); font-weight:800; font-size:13px;
+      z-index: 12000; opacity:0; pointer-events:none; transition: all .3s; box-shadow:0 12px 40px rgba(0,0,0,.3);
+    }
+    .cf-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+    .cf-vault-controls { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:22px; }
+    .cf-vault-controls input, .cf-vault-controls select {
+      padding:11px 14px; border:1.5px solid var(--studio-border); background:var(--studio-input-bg);
+      color:var(--studio-ink); border-radius:var(--radius-md); font-family:inherit; font-size:13px; outline:none;
+    }
+    .cf-vault-controls input { flex:1; min-width:180px; }
+    .cf-vault-controls input:focus, .cf-vault-controls select:focus { border-color:var(--orange); }
+
+    .cf-template-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:14px; }
+    .cf-tpl {
+      text-align:left; cursor:pointer; padding:18px; border-radius:var(--radius-md);
+      border:1.5px solid var(--studio-border); background:var(--studio-card);
+      transition:all .25s; font-family:inherit; color:var(--studio-ink);
+    }
+    .cf-tpl:hover { border-color:var(--orange); transform:translateY(-3px); box-shadow:0 12px 30px rgba(255,87,47,.1); }
+    .cf-tpl .cf-tpl-ico { font-size:26px; margin-bottom:10px; }
+    .cf-tpl h5 { font-family:var(--font-heading); font-size:14px; font-weight:800; margin-bottom:5px; }
+    .cf-tpl p { font-size:12px; color:var(--studio-muted); line-height:1.5; }
+
+    @media (max-width: 768px) {
+      #creator { padding: 30px 18px; }
+      .cf-score-hero { padding:20px; gap:18px; }
+      .creator-header { flex-direction:column; align-items:flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div class="cursor"></div>
+<div class="cursor-ring"></div>
+
+<!-- UI CUSTOMIZATION -->
+<button class="theme-fab" id="themeFab" onclick="toggleThemePanel()" aria-label="Customize UI theme">
+  <span class="theme-fab-icon">🎨</span>
+</button>
+
+<aside class="theme-panel" id="themePanel">
+  <div class="theme-panel-header">
+    <div>
+      <div class="theme-panel-title">Customize UI</div>
+      <div class="theme-panel-subtitle">16 distinct 3D looks — pick one</div>
+    </div>
+    <button class="theme-panel-close" onclick="toggleThemePanel()" aria-label="Close customization panel">✕</button>
+  </div>
+  <div class="theme-swatch-grid" id="themeGrid"></div>
+</aside>
+<div class="theme-panel-backdrop" id="themePanelBackdrop" onclick="toggleThemePanel()"></div>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="logo">
+    <div class="logo-icon">CF</div>
+    <span>Copyforge</span> Pro
+  </div>
+  <div class="nav-items">
+    <a href="#features" class="nav-link">Features</a>
+    <a href="#industries" class="nav-link">Industries</a>
+    <a href="#" class="nav-link" onclick="event.preventDefault();openCreator()">Creator AI</a>
+    <a href="#pricing" class="nav-link">Pricing</a>
+    <button class="btn btn-primary" onclick="scrollToIndustries()">Launch Studio</button>
+  </div>
+</nav>
+
+<!-- HERO SECTION -->
+<section class="hero">
+  <canvas id="heroCanvas"></canvas>
+  <div class="hero-content">
+    <div class="hero-badge">✨ AI-Powered Content Generation</div>
+    <h1>Create <span>Stunning Content</span> in Seconds</h1>
+    <p>Advanced AI content studio designed for modern businesses. Generate captions, ads, strategies, and campaigns instantly with industry-specific intelligence.</p>
+    <div class="hero-actions">
+      <button class="btn btn-primary" onclick="scrollToIndustries()">Get Started Free</button>
+      <button class="btn btn-outline" onclick="alert('Demo coming soon!')">Watch Demo</button>
+    </div>
+  </div>
+
+  <div class="scroll-indicator">
+    <span class="scroll-text">SCROLL TO EXPLORE</span>
+    <div class="scroll-icon">
+      <div class="scroll-dot"></div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS SECTION -->
+<section class="stats-section">
+  <div class="stat-card">
+    <div class="stat-number">50K+</div>
+    <div class="stat-label">Active Businesses</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number">2M+</div>
+    <div class="stat-label">Content Generated</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number">98%</div>
+    <div class="stat-label">User Satisfaction</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number">24/7</div>
+    <div class="stat-label">AI Support Ready</div>
+  </div>
+</section>
+
+<!-- FEATURES SECTION -->
+<section class="features-section" id="features">
+  <div class="section-header">
+    <div class="section-label">PREMIUM FEATURES</div>
+    <h2 class="section-title">Everything You Need</h2>
+    <p class="section-description">Powerful tools designed to accelerate your content creation and boost your business growth</p>
+  </div>
+
+  <div class="features-grid">
+    <div class="feature-card" onclick="openCreator()" style="border-color:rgba(255,87,47,.4)">
+      <div class="feature-icon">🤖</div>
+      <h3 class="feature-title">Creator Advisor AI</h3>
+      <p class="feature-description">A full creator intelligence suite — analyze your brand, plan content, repurpose, and grow</p>
+      <ul class="feature-list">
+        <li>Brand analysis &amp; health score</li>
+        <li>Hooks, scripts, repurposing</li>
+        <li>Calendar, campaigns &amp; vault</li>
+      </ul>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">🚀</div>
+      <h3 class="feature-title">AI Content Generator</h3>
+      <p class="feature-description">Generate unlimited high-quality content tailored to your industry</p>
+      <ul class="feature-list">
+        <li>5+ content types</li>
+        <li>Real-time generation</li>
+        <li>Industry templates</li>
+      </ul>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <h3 class="feature-title">Analytics Dashboard</h3>
+      <p class="feature-description">Track performance metrics and optimize your content strategy</p>
+      <ul class="feature-list">
+        <li>Real-time stats</li>
+        <li>Performance tracking</li>
+        <li>Custom reports</li>
+      </ul>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">🎯</div>
+      <h3 class="feature-title">Smart Templates</h3>
+      <p class="feature-description">Pre-built templates optimized for maximum engagement</p>
+      <ul class="feature-list">
+        <li>100+ templates</li>
+        <li>Fully customizable</li>
+        <li>A/B testing ready</li>
+      </ul>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">🔗</div>
+      <h3 class="feature-title">Multi-Channel Publishing</h3>
+      <p class="feature-description">Publish directly to all your social media platforms</p>
+      <ul class="feature-list">
+        <li>Instagram, TikTok, Facebook</li>
+        <li>LinkedIn, Twitter, Pinterest</li>
+        <li>Schedule posts</li>
+      </ul>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">💡</div>
+      <h3 class="feature-title">Brand Voice AI</h3>
+      <p class="feature-description">Train AI to match your unique brand voice and tone</p>
+      <ul class="feature-list">
+        <li>Custom voice training</li>
+        <li>Tone consistency</li>
+        <li>Brand guidelines</li>
+      </ul>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">🔐</div>
+      <h3 class="feature-title">Team Collaboration</h3>
+      <p class="feature-description">Work together with unlimited team members securely</p>
+      <ul class="feature-list">
+        <li>Real-time collaboration</li>
+        <li>Permission controls</li>
+        <li>Audit logs</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- INDUSTRIES SECTION -->
+<section class="industries-section" id="industries">
+  <div class="section-header">
+    <div class="section-label">BUILT FOR EVERY INDUSTRY</div>
+    <h2 class="section-title">Your Business. Your Studio.</h2>
+    <p class="section-description">AI solutions specifically trained for your industry's unique needs</p>
+  </div>
+
+  <div class="industries-grid" id="industryGrid"></div>
+</section>
+
+<!-- STUDIO SECTION -->
+<section id="studio">
+  <div class="studio-container">
+    <div class="studio-header">
+      <div>
+        <h1 class="studio-title" id="studioTitle">AI Content Studio</h1>
+        <div class="studio-info" id="studioInfo">Creating content for your business</div>
+      </div>
+      <button class="close-studio-btn" onclick="backToIndustries()">
+        ← Back to Industries
+      </button>
+    </div>
+
+    <div class="studio-tabs" id="studioTabs"></div>
+
+    <div class="studio-main">
+      <h2 class="panel-title" id="panelTitle">Content Generator</h2>
+      <p class="panel-description" id="panelDescription">Generate professional content for your business</p>
+
+      <!-- MAIN FORM SECTION -->
+      <div class="form-section">
+        <div class="form-section-title">Business Details</div>
+        <div class="fields" id="fields"></div>
+      </div>
+
+      <!-- ACTION BUTTONS -->
+      <div class="btn-group">
+        <button class="generate-btn" id="generateBtn" onclick="generateContent()">
+          <span id="btnText">Generate Content</span>
+        </button>
+        <button class="clear-btn" onclick="clearForm()">Clear Form</button>
+      </div>
+
+      <!-- RESULTS -->
+      <div id="output"></div>
+    </div>
+  </div>
+</section>
+
+<!-- CREATOR AI PLATFORM -->
+<section id="creator">
+  <div class="creator-container">
+    <div class="creator-header">
+      <div>
+        <h1 class="creator-heading"><span>🤖</span> Creator AI</h1>
+        <div class="creator-sub">Creator Intelligence Platform — part of Copyforge Pro</div>
+      </div>
+      <div class="creator-toolbar">
+        <span class="cf-mode-badge offline" id="cfModeBadge" onclick="creatorGoto('settings')" title="AI mode — click to configure">
+          <span class="cf-dot"></span><span id="cfModeText">Offline Mode</span>
+        </span>
+        <select class="cf-lang" id="cfLang" aria-label="Output language" title="Output language"></select>
+        <button class="close-studio-btn" onclick="closeCreator()">← Back</button>
+      </div>
+    </div>
+
+    <div class="creator-tabs" id="creatorTabs"></div>
+
+    <div class="creator-main" id="creatorMain"></div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-content">
+    <div class="footer-section">
+      <h3>Product</h3>
+      <a href="#">Features</a>
+      <a href="#">Pricing</a>
+      <a href="#">Templates</a>
+      <a href="#">Integrations</a>
+    </div>
+    <div class="footer-section">
+      <h3>Company</h3>
+      <a href="#">About</a>
+      <a href="#">Blog</a>
+      <a href="#">Careers</a>
+      <a href="#">Contact</a>
+    </div>
+    <div class="footer-section">
+      <h3>Resources</h3>
+      <a href="#">Documentation</a>
+      <a href="#">API Docs</a>
+      <a href="#">Support</a>
+      <a href="#">Community</a>
+    </div>
+    <div class="footer-section">
+      <h3>Legal</h3>
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="#">Cookies</a>
+      <a href="#">License</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2024 Copyforge Pro. All rights reserved.</span>
+    <span class="footer-credits">Engineered by <strong>Abubakar Siddique</strong> 🚀</span>
+  </div>
+</footer>
+
+<script>
+  // ========== CURSOR ========== 
+  const cursor = document.querySelector(".cursor");
+  const cursorRing = document.querySelector(".cursor-ring");
+  let cursorX = 0;
+  let cursorY = 0;
+  let ringX = 0;
+  let ringY = 0;
+
+  document.addEventListener("mousemove", (e) => {
+    cursorX = e.clientX;
+    cursorY = e.clientY;
+    cursor.style.left = cursorX + "px";
+    cursor.style.top = cursorY + "px";
+  });
+
+  function animateCursor() {
+    ringX += (cursorX - ringX) * 0.15;
+    ringY += (cursorY - ringY) * 0.15;
+    cursorRing.style.left = ringX + "px";
+    cursorRing.style.top = ringY + "px";
+    requestAnimationFrame(animateCursor);
+  }
+
+  animateCursor();
+
+  document.querySelectorAll(".btn, .industry-card, .feature-card, .tab-btn").forEach((el) => {
+    el.addEventListener("mouseenter", () => document.body.classList.add("hovering"));
+    el.addEventListener("mouseleave", () => document.body.classList.remove("hovering"));
+  });
+
+  // ========== 3D HERO CANVAS (theme-driven, rebuildable) ==========
+  let scene, camera, renderer, light1, light2;
+  let meshes = [], particleSystem = null, orbitGroup = null, gridMesh = null, sunMesh = null;
+
+  const GEO_FACTORY = {
+    icosahedron: () => new THREE.IcosahedronGeometry(3, 0),
+    torus: () => new THREE.TorusGeometry(4, 1.4, 16, 100),
+    octahedron: () => new THREE.OctahedronGeometry(3, 0),
+    dodecahedron: () => new THREE.DodecahedronGeometry(3, 0),
+    tetrahedron: () => new THREE.TetrahedronGeometry(3.4, 0),
+    box: () => new THREE.BoxGeometry(4, 4, 4),
+    sphere: () => new THREE.SphereGeometry(3, 24, 24),
+    torusKnot: () => new THREE.TorusKnotGeometry(2.6, 0.8, 100, 16),
+    cone: () => new THREE.ConeGeometry(3, 5, 6),
+    ring: () => new THREE.RingGeometry(2, 3.6, 6),
+  };
+
+  function initRenderer() {
+    const canvas = document.getElementById("heroCanvas");
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 30;
+
+    renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    light1 = new THREE.PointLight(0xff572f, 2, 120);
+    light1.position.set(10, 10, 20);
+    scene.add(light1);
+
+    light2 = new THREE.PointLight(0xffffff, 1, 120);
+    light2.position.set(-10, -10, 20);
+    scene.add(light2);
+  }
+
+  function clear3D() {
+    meshes.forEach((m) => scene.remove(m));
+    meshes = [];
+    if (particleSystem) { scene.remove(particleSystem); particleSystem = null; }
+    if (orbitGroup) { scene.remove(orbitGroup); orbitGroup = null; }
+    if (gridMesh) { scene.remove(gridMesh); gridMesh = null; }
+    if (sunMesh) { scene.remove(sunMesh); sunMesh = null; }
+  }
+
+  function makeParticles(count, color, spread, size) {
+    const geo = new THREE.BufferGeometry();
+    const positions = new Float32Array(count * 3);
+    for (let i = 0; i < count * 3; i++) positions[i] = (Math.random() - 0.5) * spread;
+    geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    const mat = new THREE.PointsMaterial({ color, size, transparent: true, opacity: 0.85 });
+    return new THREE.Points(geo, mat);
+  }
+
+  // Builds a completely rebuilt 3D scene from a theme's "three" config.
+  function rebuild3D(cfg) {
+    if (!scene) return;
+    clear3D();
+
+    light1.color.setHex(cfg.light1);
+    light2.color.setHex(cfg.light2);
+
+    if (cfg.mode === "shapes") {
+      cfg.shapes.forEach((s) => {
+        const geo = (GEO_FACTORY[s.geo] || GEO_FACTORY.icosahedron)();
+        const mat = new THREE.MeshPhongMaterial({
+          color: s.color, wireframe: !!s.wireframe,
+          emissive: s.emissive !== undefined ? s.emissive : s.color,
+          emissiveIntensity: s.wireframe ? 0.15 : 0.3,
+        });
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.position.set((Math.random() - 0.5) * 40, (Math.random() - 0.5) * 40, (Math.random() - 0.5) * 40);
+        mesh.userData = {
+          rx: (Math.random() - 0.5) * 0.012 * cfg.speed,
+          ry: (Math.random() - 0.5) * 0.012 * cfg.speed,
+        };
+        meshes.push(mesh);
+        scene.add(mesh);
+      });
+    } else if (cfg.mode === "particles") {
+      particleSystem = makeParticles(cfg.particleCount, cfg.particleColor, cfg.particleSpread || 70, cfg.particleSize || 0.5);
+      scene.add(particleSystem);
+      if (cfg.shapes) {
+        cfg.shapes.forEach((s) => {
+          const geo = (GEO_FACTORY[s.geo] || GEO_FACTORY.icosahedron)();
+          const mat = new THREE.MeshPhongMaterial({ color: s.color, wireframe: !!s.wireframe, emissive: s.color, emissiveIntensity: 0.25 });
+          const mesh = new THREE.Mesh(geo, mat);
+          mesh.position.set((Math.random() - 0.5) * 30, (Math.random() - 0.5) * 30, (Math.random() - 0.5) * 30);
+          mesh.userData = { rx: (Math.random() - 0.5) * 0.01 * cfg.speed, ry: (Math.random() - 0.5) * 0.01 * cfg.speed };
+          meshes.push(mesh);
+          scene.add(mesh);
+        });
+      }
+    } else if (cfg.mode === "grid") {
+      const gridGeo = new THREE.PlaneGeometry(120, 120, 24, 24);
+      const gridMat = new THREE.MeshBasicMaterial({ color: cfg.gridColor, wireframe: true, transparent: true, opacity: 0.55 });
+      gridMesh = new THREE.Mesh(gridGeo, gridMat);
+      gridMesh.rotation.x = -Math.PI / 2.4;
+      gridMesh.position.y = -12;
+      scene.add(gridMesh);
+
+      const sunGeo = new THREE.CircleGeometry(9, 48);
+      const sunMat = new THREE.MeshBasicMaterial({ color: cfg.sunColor, transparent: true, opacity: 0.85 });
+      sunMesh = new THREE.Mesh(sunGeo, sunMat);
+      sunMesh.position.set(0, 4, -20);
+      scene.add(sunMesh);
+
+      if (cfg.particleCount) {
+        particleSystem = makeParticles(cfg.particleCount, cfg.particleColor || cfg.sunColor, 80, 0.6);
+        scene.add(particleSystem);
+      }
+    } else if (cfg.mode === "orbit") {
+      orbitGroup = new THREE.Group();
+      const coreGeo = (GEO_FACTORY[cfg.core.geo] || GEO_FACTORY.dodecahedron)();
+      const coreMat = new THREE.MeshPhongMaterial({ color: cfg.core.color, wireframe: !!cfg.core.wireframe, emissive: cfg.core.color, emissiveIntensity: 0.35 });
+      const core = new THREE.Mesh(coreGeo, coreMat);
+      orbitGroup.add(core);
+      meshes.push(core);
+
+      const satCount = cfg.satellites || 6;
+      for (let i = 0; i < satCount; i++) {
+        const satGeo = new THREE.SphereGeometry(0.7, 16, 16);
+        const satMat = new THREE.MeshPhongMaterial({ color: cfg.satColor, emissive: cfg.satColor, emissiveIntensity: 0.5 });
+        const sat = new THREE.Mesh(satGeo, satMat);
+        const radius = 7 + Math.random() * 5;
+        const angle = (i / satCount) * Math.PI * 2;
+        sat.userData = { radius, angle, tilt: Math.random() * Math.PI, speed: (0.004 + Math.random() * 0.006) * cfg.speed };
+        orbitGroup.add(sat);
+        meshes.push(sat);
+      }
+      orbitGroup.userData = { isOrbit: true, ry: 0.003 * cfg.speed };
+      scene.add(orbitGroup);
+
+      if (cfg.particleCount) {
+        particleSystem = makeParticles(cfg.particleCount, cfg.particleColor, 90, 0.5);
+        scene.add(particleSystem);
+      }
+    }
+  }
+
+  let mouseX = 0;
+  let mouseY = 0;
+
+  document.addEventListener("mousemove", (e) => {
+    mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+    mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+  });
+
+  function animate3D() {
+    requestAnimationFrame(animate3D);
+
+    meshes.forEach((mesh) => {
+      if (mesh.userData.radius !== undefined) return; // orbit satellites animated below
+      if (mesh.userData.rx !== undefined) {
+        mesh.rotation.x += mesh.userData.rx;
+        mesh.rotation.y += mesh.userData.ry;
+      }
+    });
+
+    if (orbitGroup) {
+      orbitGroup.rotation.y += orbitGroup.userData.ry;
+      orbitGroup.children.forEach((child) => {
+        if (child.userData.radius === undefined) return;
+        child.userData.angle += child.userData.speed;
+        child.position.x = Math.cos(child.userData.angle) * child.userData.radius;
+        child.position.z = Math.sin(child.userData.angle) * child.userData.radius;
+        child.position.y = Math.sin(child.userData.angle * 1.3 + child.userData.tilt) * 3;
+      });
+    }
+
+    if (particleSystem) particleSystem.rotation.y += 0.0006;
+    if (gridMesh) gridMesh.position.z = (gridMesh.position.z + 0.05) % 5;
+
+    camera.position.x += mouseX * 5 - camera.position.x * 0.02;
+    camera.position.y += mouseY * 5 - camera.position.y * 0.02;
+    camera.lookAt(scene.position);
+
+    renderer.render(scene, camera);
+  }
+
+  function onWindowResize() {
+    if (!camera || !renderer) return;
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  }
+
+  window.addEventListener("resize", onWindowResize);
+
+  document.addEventListener("DOMContentLoaded", () => {
+    initRenderer();
+    applyTheme("default");
+    animate3D();
+  });
+
+  // ========== INDUSTRIES DATA ==========
+  const INDUSTRIES = {
+    clothing: { name: "Fashion & Clothing", icon: "👗", desc: "Captions, lookbooks, seasonal campaigns" },
+    restaurant: { name: "Food & Beverage", icon: "🍽️", desc: "Menu descriptions, promotions, events" },
+    realtor: { name: "Real Estate", icon: "🏠", desc: "Property listings, virtual tours, financing" },
+    salon: { name: "Beauty & Wellness", icon: "💅", desc: "Service promos, transformation posts, tips" },
+    gym: { name: "Fitness & Health", icon: "💪", desc: "Workout plans, transformation stories, tips" },
+    ecommerce: { name: "E-commerce", icon: "🛍️", desc: "Product descriptions, flash sales, reviews" },
+    tech: { name: "Technology", icon: "⚡", desc: "Launch announcements, feature highlights, blogs" },
+    finance: { name: "Financial Services", icon: "💰", desc: "Market updates, tips, investment content" },
+    education: { name: "Education", icon: "📚", desc: "Course promos, student success, webinars" },
+    nonprofit: { name: "Non-Profit", icon: "❤️", desc: "Fundraising, impact stories, community posts" },
+  };
+
+  const TABS = {
+    captions: {
+      title: "Social Captions",
+      description: "Generate engaging captions for Instagram, TikTok, Facebook, and more.",
+      fields: [
+        ["product", "What are you posting about?", "text", "e.g. New product launch"],
+        ["platform", "Platform", "select", ["Instagram", "TikTok", "Facebook", "LinkedIn", "Twitter", "Pinterest"]],
+        ["tone", "Brand Tone", "select", ["Minimal & Premium", "Bold & Energetic", "Friendly & Casual", "Professional", "Playful", "Luxury", "Eco-Conscious"]],
+        ["cta", "Call to Action", "text", "e.g. Shop now, Learn more, Join us"],
+      ]
+    },
+    adcopy: {
+      title: "Paid Ad Copy",
+      description: "Create high-converting ad copy for paid social campaigns.",
+      fields: [
+        ["campaign", "Campaign Name", "text", "e.g. Summer Collection Launch"],
+        ["offer", "Your Offer/Discount", "text", "e.g. 30% off, Free shipping"],
+        ["audience", "Target Audience", "text", "e.g. Eco-conscious millennials"],
+        ["painpoint", "Customer Pain Point", "text", "e.g. Spending too much time getting ready"],
+      ]
+    },
+    strategy: {
+      title: "Content Strategy",
+      description: "Build a week-long content calendar with diverse post types.",
+      fields: [
+        ["focus", "Weekly Focus", "text", "e.g. New product line"],
+        ["goals", "Campaign Goals", "select", ["Drive Sales", "Build Awareness", "Engagement", "Community", "Lead Generation", "Brand Loyalty"]],
+        ["days", "Number of Days", "select", ["3", "5", "7", "14", "30"]],
+        ["hashtags", "Include hashtags?", "select", ["Yes", "No"]],
+      ]
+    },
+    emails: {
+      title: "Email Campaigns",
+      description: "Generate subject lines, email copy, and follow-up sequences.",
+      fields: [
+        ["emailtype", "Email Type", "select", ["Welcome Series", "Product Launch", "Flash Sale", "Abandoned Cart", "Re-engagement", "VIP Exclusive"]],
+        ["offer", "Main Offer", "text", "e.g. Exclusive 40% discount"],
+        ["audience", "Recipient Segment", "text", "e.g. Past customers who haven't purchased"],
+        ["personaldata", "Personalization Detail", "text", "e.g. Customer name, purchase history"],
+      ]
+    },
+    videos: {
+      title: "Video Scripts",
+      description: "Create short video scripts optimized for TikTok, Reels, and YouTube Shorts.",
+      fields: [
+        ["format", "Video Format", "select", ["How-To Tutorial", "Before & After", "Product Demo", "Testimonial", "Behind-the-Scenes", "Entertainment"]],
+        ["duration", "Video Length", "select", ["15-30 seconds", "30-60 seconds", "1-2 minutes"]],
+        ["tone", "Tone", "select", ["Fun & Viral", "Educational", "Emotional", "Authentic", "Promotional"]],
+        ["cta", "Call to Action", "text", "e.g. Tap link in bio, Subscribe now"],
+      ]
+    },
+    blog: {
+      title: "Blog Post Ideas",
+      description: "Generate blog post titles, outlines, and SEO-optimized content.",
+      fields: [
+        ["topic", "Blog Topic", "text", "e.g. How to care for your leather goods"],
+        ["keywords", "Target Keywords", "text", "e.g. leather care, product maintenance"],
+        ["length", "Post Length", "select", ["Short (500-800 words)", "Medium (800-1500 words)", "Long (1500+ words)"]],
+        ["seo", "Focus on SEO?", "select", ["Yes", "No"]],
+      ]
+    },
+  };
+
+  let currentIndustry = null;
+  let currentTab = "captions";
+
+  // ========== INDUSTRY GRID ==========
+  function initIndustries() {
+    const grid = document.getElementById("industryGrid");
+    grid.innerHTML = "";
+    let idx = 1;
+
+    Object.entries(INDUSTRIES).forEach(([key, data]) => {
+      const card = document.createElement("div");
+      card.className = "industry-card";
+      card.innerHTML = `
+        <div class="industry-number">${String(idx).padStart(2, "0")}</div>
+        <div class="industry-icon">${data.icon}</div>
+        <h3 class="industry-title">${data.name}</h3>
+        <p class="industry-description">${data.desc}</p>
+        <a href="#" class="industry-link">Enter Studio <span>→</span></a>
+      `;
+      card.onclick = (e) => {
+        e.preventDefault();
+        openStudio(key);
+      };
+      grid.appendChild(card);
+      idx++;
+    });
+  }
+
+  // ========== OPEN STUDIO ==========
+  function openStudio(key) {
+    currentIndustry = key;
+    currentTab = "captions";
+    document.getElementById("studio").style.display = "block";
+    document.getElementById("studioTitle").textContent = INDUSTRIES[key].name;
+    document.getElementById("studioInfo").textContent = `Creating content for ${INDUSTRIES[key].name.toLowerCase()}`;
+    createTabs();
+    renderTab();
+    document.getElementById("studio").scrollIntoView({ behavior: "smooth" });
+  }
+
+  // ========== TABS ==========
+  function createTabs() {
+    const container = document.getElementById("studioTabs");
+    container.innerHTML = "";
+
+    Object.entries(TABS).forEach(([key, tab]) => {
+      const btn = document.createElement("button");
+      btn.className = `tab-btn ${key === currentTab ? "active" : ""}`;
+      btn.textContent = tab.title;
+      btn.onclick = () => {
+        currentTab = key;
+        document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        renderTab();
+      };
+      container.appendChild(btn);
+    });
+  }
+
+  // ========== RENDER TAB ==========
+  function renderTab() {
+    const tab = TABS[currentTab];
+    document.getElementById("panelTitle").textContent = tab.title;
+    document.getElementById("panelDescription").textContent = tab.description;
+    document.getElementById("output").innerHTML = "";
+
+    const fieldsContainer = document.getElementById("fields");
+    fieldsContainer.innerHTML = "";
+
+    tab.fields.forEach(([id, label, type, options], index) => {
+      const field = document.createElement("div");
+      field.className = "field";
+
+      const labelEl = document.createElement("label");
+      labelEl.textContent = label;
+      field.appendChild(labelEl);
+
+      let input;
+      if (type === "select") {
+        input = document.createElement("select");
+        options.forEach((opt) => {
+          const option = document.createElement("option");
+          option.value = opt;
+          option.textContent = opt;
+          input.appendChild(option);
+        });
+      } else {
+        input = document.createElement("input");
+        input.type = "text";
+        input.placeholder = options;
+      }
+
+      input.id = "field-" + id;
+      field.appendChild(input);
+      fieldsContainer.appendChild(field);
+
+      if ((index + 1) % 2 === 0 && index !== tab.fields.length - 1) {
+        const spacer = document.createElement("div");
+        fieldsContainer.appendChild(spacer);
+      }
+    });
+
+    document.getElementById("btnText").textContent = "Generate " + tab.title;
+  }
+
+  // ========== GENERATE CONTENT ==========
+  async function generateContent() {
+    const btn = document.getElementById("generateBtn");
+    const output = document.getElementById("output");
+    const tab = TABS[currentTab];
+
+    const values = {};
+    tab.fields.forEach(([id]) => {
+      const el = document.getElementById("field-" + id);
+      values[id] = el.value.trim() || "not specified";
+    });
+
+    btn.disabled = true;
+    btn.textContent = "GENERATING...";
+    output.innerHTML = '<div class="loading"></div>';
+
+    const industry = INDUSTRIES[currentIndustry];
+
+    try {
+      const content = generateDemoContent(currentTab, values, industry);
+      renderResults(content);
+    } catch (error) {
+      output.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "Generate " + tab.title;
+    }
+  }
+
+  // ========== DEMO CONTENT GENERATOR ==========
+  function generateDemoContent(tabType, values, industry) {
+    const contentGenerators = {
+      captions: () => [
+        `✨ Just dropped: ${values.product}. ${values.tone === "Playful" ? "🎉" : "🔥"} ${values.cta}. Link in bio!`,
+        `Your ${values.product} is here and we're obsessed. Available now on all platforms. ${values.cta}!`,
+        `This ${values.product} is everything. Perfect for ${industry.name.toLowerCase()}. ${values.cta} → Link in bio 💫`,
+      ],
+      adcopy: () => [
+        `🎯 ${values.campaign}\n${values.offer} for you\n${values.audience} deserve this.\n${values.painpoint} solved.\nTap now →`,
+        `Stop settling for less.\n${values.campaign}: ${values.offer}\nDesigned for ${values.audience}\n${values.painpoint}? Not anymore.`,
+      ],
+      strategy: () => [
+        `📅 Week Strategy:\nDay 1-2: Awareness with ${values.focus}\nDay 3: Deep dive content\nDay 4-5: User testimonials\nDay 6-7: Limited offer push`,
+      ],
+      emails: () => [
+        `Subject: ${values.emailtype === "Flash Sale" ? "⏰ Last chance!" : "✨ Exclusive offer"} ${values.offer}\n\nHey there,\n\nWe reserved ${values.offer} just for you.\n\n${values.personaldata} showed interest, and we knew you'd love this.\n\n→ Claim your ${values.offer}`,
+      ],
+      videos: () => [
+        `🎬 ${values.format} Script:\n[0-5s] Hook: ${values.painpoint}\n[5-15s] Solution: Your ${values.campaign}\n[15-25s] Benefits showcase\n[25-30s] CTA: ${values.cta}`,
+      ],
+      blog: () => [
+        `📝 Blog Post Outline:\nTitle: ${values.topic}\nKeywords: ${values.keywords}\n\n1. Introduction to ${values.topic}\n2. Key benefits\n3. How-to guide\n4. Expert tips\n5. Common mistakes\n6. Conclusion & CTA`,
+      ],
+    };
+
+    const generator = contentGenerators[tabType];
+    if (!generator) return "Unable to generate content";
+
+    return generator().map((text, i) => `${i + 1}. ${text}`).join("\n\n");
+  }
+
+  // ========== RENDER RESULTS ==========
+  function renderResults(text) {
+    const output = document.getElementById("output");
+    const lines = text.split("\n\n").filter((l) => l.trim());
+
+    output.innerHTML = `
+      <div class="result-header">
+        <h3>Generated Content</h3>
+        <div class="result-counter">${lines.length}</div>
+      </div>
+    ` + lines.map((line, idx) => `
+      <div class="result-card">
+        <button class="copy-btn" onclick="copyResult(this)">COPY</button>
+        <div class="result-text">${escapeHtml(line.trim())}</div>
+      </div>
+    `).join("");
+  }
+
+  // ========== COPY RESULT ==========
+  function copyResult(btn) {
+    const text = btn.closest(".result-card").querySelector(".result-text").textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const old = btn.textContent;
+      btn.textContent = "✓ COPIED";
+      setTimeout(() => (btn.textContent = old), 1500);
+    });
+  }
+
+  // ========== CLEAR FORM ==========
+  function clearForm() {
+    document.querySelectorAll(".field input, .field select").forEach((el) => {
+      el.value = el.tagName === "SELECT" ? el.options[0].value : "";
+    });
+  }
+
+  // ========== UTILITIES ==========
+  function escapeHtml(text) {
+    const div = document.createElement("div");
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  function scrollToIndustries() {
+    document.getElementById("industries").scrollIntoView({ behavior: "smooth" });
+  }
+
+  function backToIndustries() {
+    document.getElementById("studio").style.display = "none";
+    scrollToIndustries();
+  }
+
+  // ========== INIT ==========
+  document.addEventListener("DOMContentLoaded", initIndustries);
+
+  // ========================================================
+  // ========== UI CUSTOMIZATION: 15 DISTINCT 3D THEMES ======
+  // ========================================================
+  const THEME_DEFS = {
+    default: {
+      label: "Ember Studio", swatch: ["#0a0a0a", "#ff572f", "#ff8a65"],
+      vars: {},
+      three: { mode: "shapes", speed: 1, light1: 0xff572f, light2: 0xffffff, shapes: [
+        { geo: "icosahedron", color: 0xff572f },
+        { geo: "torus", color: 0xffffff, wireframe: true },
+        { geo: "octahedron", color: 0xff8a65 },
+      ]}
+    },
+    cyberpunk: {
+      label: "Cyberpunk Neon", swatch: ["#05010a", "#ff00e6", "#00fff2"],
+      vars: { bg:"#05010a", bg2:"#0a0512", panel:"#0d0416", panel2:"#130a1f", white:"#f2f2ff", "white-dark":"#d8d3ff",
+        muted:"#9a8fc9", orange:"#ff00e6", orange2:"#00fff2", "orange-dark":"#c400b3", line:"rgba(0,255,242,.25)",
+        glass:"rgba(0,255,242,.06)", purple:"#a855f7", cyan:"#00fff2", green:"#39ff88",
+        "font-heading":"'Orbitron', sans-serif", "font-body":"'Inter', sans-serif",
+        "radius-sm":"2px", "radius-md":"3px", "radius-lg":"4px", "radius-xl":"6px", "heading-tracking":"0px",
+        "studio-bg1":"#0d0416", "studio-bg2":"#130a1f", "studio-ink":"#f2f2ff", "studio-ink-soft":"#d8d3ff",
+        "studio-muted":"#9a8fc9", "studio-card":"#150a22", "studio-border":"#3d1f52", "studio-border-soft":"#2a1538",
+        "studio-input-bg":"#0d0416", "studio-active-bg":"#ff00e6", "studio-active-text":"#05010a", "hero-opacity":".8" },
+      three: { mode: "grid", speed: 1.4, light1: 0xff00e6, light2: 0x00fff2, gridColor: 0x00fff2, sunColor: 0xff00e6, particleCount: 300, particleColor: 0x00fff2 }
+    },
+    aurora: {
+      label: "Aurora Glass", swatch: ["#081217", "#7ef7c4", "#8a7ef7"],
+      vars: { bg:"#081217", bg2:"#0c1a20", panel:"#0e1c22", panel2:"#12252c", white:"#eaf8f4", "white-dark":"#d3ece5",
+        muted:"#7fa8a0", orange:"#7ef7c4", orange2:"#8a7ef7", "orange-dark":"#4fd6a0", line:"rgba(126,247,196,.18)",
+        glass:"rgba(255,255,255,.06)", purple:"#8a7ef7", cyan:"#5fd0e8", green:"#7ef7c4",
+        "font-heading":"'DM Serif Display', serif", "font-body":"'Inter', sans-serif",
+        "radius-sm":"14px", "radius-md":"20px", "radius-lg":"28px", "radius-xl":"36px", "heading-tracking":"0px",
+        "studio-bg1":"#0e1c22", "studio-bg2":"#12252c", "studio-ink":"#eaf8f4", "studio-ink-soft":"#cfe8e0",
+        "studio-muted":"#89b0a8", "studio-card":"rgba(255,255,255,.05)", "studio-border":"rgba(126,247,196,.25)",
+        "studio-border-soft":"rgba(126,247,196,.15)", "studio-input-bg":"rgba(255,255,255,.04)",
+        "studio-active-bg":"#7ef7c4", "studio-active-text":"#081217", "hero-opacity":".6" },
+      three: { mode: "particles", speed: .6, light1: 0x7ef7c4, light2: 0x8a7ef7, particleCount: 900, particleColor: 0x7ef7c4, particleSpread: 90, shapes: [
+        { geo: "sphere", color: 0x8a7ef7, wireframe: true }, { geo: "torus", color: 0x7ef7c4, wireframe: true }
+      ]}
+    },
+    royal: {
+      label: "Royal Gold", swatch: ["#0c0a05", "#d4af37", "#f4e4a6"],
+      vars: { bg:"#0c0a05", bg2:"#120e08", panel:"#151006", panel2:"#1c1509", white:"#f4ecd8", "white-dark":"#e6d9b8",
+        muted:"#a89566", orange:"#d4af37", orange2:"#f4e4a6", "orange-dark":"#a5811f", line:"rgba(212,175,55,.22)",
+        glass:"rgba(212,175,55,.05)", purple:"#8a5a9e", cyan:"#5a8f9e", green:"#7a9e5a",
+        "font-heading":"'Playfair Display', serif", "font-body":"'Inter', sans-serif",
+        "radius-sm":"2px", "radius-md":"2px", "radius-lg":"2px", "radius-xl":"2px", "heading-tracking":"-.5px",
+        "studio-bg1":"#151006", "studio-bg2":"#1c1509", "studio-ink":"#f4ecd8", "studio-ink-soft":"#e6d9b8",
+        "studio-muted":"#a89566", "studio-card":"#171209", "studio-border":"#3a2c12", "studio-border-soft":"#2a2009",
+        "studio-input-bg":"#100c05", "studio-active-bg":"#d4af37", "studio-active-text":"#0c0a05", "hero-opacity":".55" },
+      three: { mode: "orbit", speed: .5, light1: 0xd4af37, light2: 0xf4e4a6, core: { geo: "dodecahedron", color: 0xd4af37, wireframe: false }, satellites: 5, satColor: 0xf4e4a6 }
+    },
+    vaporwave: {
+      label: "Vaporwave Retro", swatch: ["#1a0b2e", "#ff6ec7", "#08f7fe"],
+      vars: { bg:"#1a0b2e", bg2:"#230f3d", panel:"#2a1147", panel2:"#341758", white:"#fdf3ff", "white-dark":"#f0d9ff",
+        muted:"#b98fd6", orange:"#ff6ec7", orange2:"#08f7fe", "orange-dark":"#d94fa3", line:"rgba(8,247,254,.25)",
+        glass:"rgba(255,110,199,.08)", purple:"#a45fe8", cyan:"#08f7fe", green:"#05ffa1",
+        "font-heading":"'Press Start 2P', cursive", "font-body":"'VT323', monospace",
+        "radius-sm":"0px", "radius-md":"0px", "radius-lg":"0px", "radius-xl":"0px", "heading-tracking":"0px",
+        "studio-bg1":"#2a1147", "studio-bg2":"#341758", "studio-ink":"#fdf3ff", "studio-ink-soft":"#e8cfff",
+        "studio-muted":"#b98fd6", "studio-card":"#230f3d", "studio-border":"#5b2c8a", "studio-border-soft":"#4a2270",
+        "studio-input-bg":"#1a0b2e", "studio-active-bg":"#ff6ec7", "studio-active-text":"#1a0b2e", "hero-opacity":".85" },
+      three: { mode: "grid", speed: 1, light1: 0xff6ec7, light2: 0x08f7fe, gridColor: 0xff6ec7, sunColor: 0x08f7fe, particleCount: 200, particleColor: 0xffffff }
+    },
+    minimal: {
+      label: "Minimal Mono", swatch: ["#fafafa", "#111111", "#666666"],
+      vars: { bg:"#fafafa", bg2:"#f2f2f2", panel:"#ffffff", panel2:"#f0f0f0", white:"#111111", "white-dark":"#222222",
+        muted:"#777777", orange:"#111111", orange2:"#444444", "orange-dark":"#000000", line:"rgba(0,0,0,.1)",
+        glass:"rgba(0,0,0,.03)", purple:"#111111", cyan:"#111111", green:"#111111",
+        "font-heading":"'Space Grotesk', sans-serif", "font-body":"'Space Grotesk', sans-serif",
+        "radius-sm":"0px", "radius-md":"0px", "radius-lg":"0px", "radius-xl":"0px", "heading-tracking":"-1px",
+        "studio-bg1":"#fafafa", "studio-bg2":"#ffffff", "studio-ink":"#111111", "studio-ink-soft":"#333333",
+        "studio-muted":"#777777", "studio-card":"#ffffff", "studio-border":"#dddddd", "studio-border-soft":"#e5e5e5",
+        "studio-input-bg":"#f5f5f5", "studio-active-bg":"#111111", "studio-active-text":"#ffffff", "hero-opacity":".9" },
+      three: { mode: "shapes", speed: .4, light1: 0x333333, light2: 0xffffff, shapes: [
+        { geo: "box", color: 0x111111, wireframe: true }, { geo: "sphere", color: 0x444444, wireframe: true }
+      ]}
+    },
+    forest: {
+      label: "Forest Organic", swatch: ["#0d1410", "#7cb87f", "#c9a86a"],
+      vars: { bg:"#0d1410", bg2:"#111c15", panel:"#14201a", panel2:"#192a20", white:"#eef2ea", "white-dark":"#dfe6d8",
+        muted:"#8fa88f", orange:"#7cb87f", orange2:"#c9a86a", "orange-dark":"#5f9662", line:"rgba(124,184,127,.2)",
+        glass:"rgba(124,184,127,.05)", purple:"#9e8a5a", cyan:"#6aa8a0", green:"#7cb87f",
+        "font-heading":"'Fraunces', serif", "font-body":"'Inter', sans-serif",
+        "radius-sm":"10px", "radius-md":"16px", "radius-lg":"24px", "radius-xl":"32px", "heading-tracking":"0px",
+        "studio-bg1":"#14201a", "studio-bg2":"#192a20", "studio-ink":"#eef2ea", "studio-ink-soft":"#d3ddcb",
+        "studio-muted":"#8fa88f", "studio-card":"#16241c", "studio-border":"#2a3f30", "studio-border-soft":"#233527",
+        "studio-input-bg":"#101a14", "studio-active-bg":"#7cb87f", "studio-active-text":"#0d1410", "hero-opacity":".55" },
+      three: { mode: "shapes", speed: .5, light1: 0x7cb87f, light2: 0xc9a86a, shapes: [
+        { geo: "icosahedron", color: 0x7cb87f }, { geo: "torusKnot", color: 0xc9a86a, wireframe: true }, { geo: "octahedron", color: 0x6aa8a0 }
+      ]}
+    },
+    ocean: {
+      label: "Deep Ocean", swatch: ["#020d16", "#1fb6d6", "#5ef2c0"],
+      vars: { bg:"#020d16", bg2:"#04141f", panel:"#061a28", panel2:"#092233", white:"#e6f7fb", "white-dark":"#cdeef5",
+        muted:"#6fa9bd", orange:"#1fb6d6", orange2:"#5ef2c0", "orange-dark":"#158ea6", line:"rgba(31,182,214,.22)",
+        glass:"rgba(31,182,214,.06)", purple:"#4f7fd9", cyan:"#1fb6d6", green:"#5ef2c0",
+        "font-heading":"'Sora', sans-serif", "font-body":"'Sora', sans-serif",
+        "radius-sm":"8px", "radius-md":"14px", "radius-lg":"22px", "radius-xl":"30px", "heading-tracking":"-.5px",
+        "studio-bg1":"#061a28", "studio-bg2":"#092233", "studio-ink":"#e6f7fb", "studio-ink-soft":"#c3e6ef",
+        "studio-muted":"#6fa9bd", "studio-card":"#082035", "studio-border":"#154458", "studio-border-soft":"#0f3345",
+        "studio-input-bg":"#031120", "studio-active-bg":"#1fb6d6", "studio-active-text":"#020d16", "hero-opacity":".65" },
+      three: { mode: "particles", speed: .5, light1: 0x1fb6d6, light2: 0x5ef2c0, particleCount: 1100, particleColor: 0x5ef2c0, particleSpread: 100, shapes: [
+        { geo: "sphere", color: 0x1fb6d6, wireframe: true }
+      ]}
+    },
+    brutalist: {
+      label: "Crimson Brutalist", swatch: ["#0a0a0a", "#e5231b", "#f2f2f2"],
+      vars: { bg:"#0a0a0a", bg2:"#0a0a0a", panel:"#111111", panel2:"#161616", white:"#f2f2f2", "white-dark":"#e0e0e0",
+        muted:"#8a8a8a", orange:"#e5231b", orange2:"#ff4c42", "orange-dark":"#b01712", line:"rgba(242,242,242,.15)",
+        glass:"rgba(229,35,27,.06)", purple:"#e5231b", cyan:"#f2f2f2", green:"#e5231b",
+        "font-heading":"'Bebas Neue', sans-serif", "font-body":"'JetBrains Mono', monospace",
+        "radius-sm":"0px", "radius-md":"0px", "radius-lg":"0px", "radius-xl":"0px", "heading-tracking":"1px",
+        "studio-bg1":"#0a0a0a", "studio-bg2":"#111111", "studio-ink":"#f2f2f2", "studio-ink-soft":"#cccccc",
+        "studio-muted":"#8a8a8a", "studio-card":"#141414", "studio-border":"#e5231b", "studio-border-soft":"#3a3a3a",
+        "studio-input-bg":"#0a0a0a", "studio-active-bg":"#e5231b", "studio-active-text":"#0a0a0a", "hero-opacity":".7" },
+      three: { mode: "shapes", speed: 1.6, light1: 0xe5231b, light2: 0xf2f2f2, shapes: [
+        { geo: "box", color: 0xe5231b }, { geo: "tetrahedron", color: 0xf2f2f2, wireframe: true }, { geo: "ring", color: 0xe5231b, wireframe: true }
+      ]}
+    },
+    pastel: {
+      label: "Pastel Dream", swatch: ["#fdf1f6", "#f6a6c1", "#a6c8f6"],
+      vars: { bg:"#fdf1f6", bg2:"#fbe8f0", panel:"#ffffff", panel2:"#fdf4f8", white:"#4a3b45", "white-dark":"#6b5560",
+        muted:"#b899a8", orange:"#f6a6c1", orange2:"#a6c8f6", "orange-dark":"#e888ab", line:"rgba(246,166,193,.3)",
+        glass:"rgba(246,166,193,.08)", purple:"#c6a6f6", cyan:"#a6e8f0", green:"#b6e6c1",
+        "font-heading":"'Poppins', sans-serif", "font-body":"'Poppins', sans-serif",
+        "radius-sm":"16px", "radius-md":"22px", "radius-lg":"30px", "radius-xl":"40px", "heading-tracking":"0px",
+        "studio-bg1":"#fdf1f6", "studio-bg2":"#ffffff", "studio-ink":"#4a3b45", "studio-ink-soft":"#6b5560",
+        "studio-muted":"#b899a8", "studio-card":"#ffffff", "studio-border":"#f6d3e0", "studio-border-soft":"#fbe4ec",
+        "studio-input-bg":"#fdf7fa", "studio-active-bg":"#f6a6c1", "studio-active-text":"#ffffff", "hero-opacity":".5" },
+      three: { mode: "orbit", speed: .4, light1: 0xf6a6c1, light2: 0xa6c8f6, core: { geo: "sphere", color: 0xf6a6c1, wireframe: false }, satellites: 6, satColor: 0xa6c8f6 }
+    },
+    matrix: {
+      label: "Matrix Terminal", swatch: ["#000000", "#00ff41", "#003b0f"],
+      vars: { bg:"#000000", bg2:"#000a02", panel:"#001505", panel2:"#001f08", white:"#c8ffcf", "white-dark":"#8fffa0",
+        muted:"#3f8a4f", orange:"#00ff41", orange2:"#66ff8f", "orange-dark":"#00b82e", line:"rgba(0,255,65,.2)",
+        glass:"rgba(0,255,65,.05)", purple:"#00ff41", cyan:"#00ff41", green:"#00ff41",
+        "font-heading":"'JetBrains Mono', monospace", "font-body":"'JetBrains Mono', monospace",
+        "radius-sm":"0px", "radius-md":"2px", "radius-lg":"2px", "radius-xl":"2px", "heading-tracking":"0px",
+        "studio-bg1":"#000000", "studio-bg2":"#000a02", "studio-ink":"#c8ffcf", "studio-ink-soft":"#9dffb0",
+        "studio-muted":"#3f8a4f", "studio-card":"#000f03", "studio-border":"#0f4a1e", "studio-border-soft":"#0a3315",
+        "studio-input-bg":"#000000", "studio-active-bg":"#00ff41", "studio-active-text":"#000000", "hero-opacity":".9" },
+      three: { mode: "particles", speed: 1, light1: 0x00ff41, light2: 0x00ff41, particleCount: 1400, particleColor: 0x00ff41, particleSpread: 110, shapes: [
+        { geo: "box", color: 0x00ff41, wireframe: true }
+      ]}
+    },
+    solar: {
+      label: "Solar Flare", swatch: ["#1a0500", "#ff5e00", "#ffd23f"],
+      vars: { bg:"#1a0500", bg2:"#220800", panel:"#2b0c00", panel2:"#361200", white:"#fff3e0", "white-dark":"#ffe0b8",
+        muted:"#c98a5a", orange:"#ff5e00", orange2:"#ffd23f", "orange-dark":"#cc4a00", line:"rgba(255,210,63,.2)",
+        glass:"rgba(255,94,0,.08)", purple:"#ff8a3f", cyan:"#ffd23f", green:"#ff9d3f",
+        "font-heading":"'Unbounded', sans-serif", "font-body":"'Outfit', sans-serif",
+        "radius-sm":"6px", "radius-md":"10px", "radius-lg":"16px", "radius-xl":"999px", "heading-tracking":"-1px",
+        "studio-bg1":"#2b0c00", "studio-bg2":"#361200", "studio-ink":"#fff3e0", "studio-ink-soft":"#ffdcb0",
+        "studio-muted":"#c98a5a", "studio-card":"#2f0e00", "studio-border":"#5c2400", "studio-border-soft":"#461b00",
+        "studio-input-bg":"#210700", "studio-active-bg":"#ff5e00", "studio-active-text":"#1a0500", "hero-opacity":".7" },
+      three: { mode: "particles", speed: 1.3, light1: 0xff5e00, light2: 0xffd23f, particleCount: 800, particleColor: 0xffd23f, particleSpread: 80, shapes: [
+        { geo: "sphere", color: 0xff5e00 }
+      ]}
+    },
+    ice: {
+      label: "Ice Crystal", swatch: ["#eef6fb", "#5fb8e8", "#ffffff"],
+      vars: { bg:"#eef6fb", bg2:"#e3f1fa", panel:"#ffffff", panel2:"#f4fafd", white:"#0f2a3d", "white-dark":"#1e3f56",
+        muted:"#6d94ab", orange:"#5fb8e8", orange2:"#bfe6f7", "orange-dark":"#3a97c9", line:"rgba(95,184,232,.25)",
+        glass:"rgba(95,184,232,.08)", purple:"#8ab6e8", cyan:"#5fb8e8", green:"#7fd6c4",
+        "font-heading":"'Outfit', sans-serif", "font-body":"'Inter', sans-serif",
+        "radius-sm":"10px", "radius-md":"16px", "radius-lg":"24px", "radius-xl":"32px", "heading-tracking":"-.5px",
+        "studio-bg1":"#eef6fb", "studio-bg2":"#ffffff", "studio-ink":"#0f2a3d", "studio-ink-soft":"#33546a",
+        "studio-muted":"#6d94ab", "studio-card":"#ffffff", "studio-border":"#cfe6f4", "studio-border-soft":"#e0eff8",
+        "studio-input-bg":"#f5fafd", "studio-active-bg":"#5fb8e8", "studio-active-text":"#ffffff", "hero-opacity":".55" },
+      three: { mode: "shapes", speed: .5, light1: 0x5fb8e8, light2: 0xffffff, shapes: [
+        { geo: "octahedron", color: 0x5fb8e8, wireframe: true }, { geo: "icosahedron", color: 0xbfe6f7, wireframe: true }, { geo: "tetrahedron", color: 0x8ab6e8, wireframe: true }
+      ]}
+    },
+    galaxy: {
+      label: "Galaxy Nebula", swatch: ["#0a0420", "#a259ff", "#59c9ff"],
+      vars: { bg:"#0a0420", bg2:"#0f0630", panel:"#130940", panel2:"#180c4c", white:"#f1ecff", "white-dark":"#ddd2ff",
+        muted:"#9a89c9", orange:"#a259ff", orange2:"#59c9ff", "orange-dark":"#7d3fd9", line:"rgba(162,89,255,.25)",
+        glass:"rgba(162,89,255,.06)", purple:"#a259ff", cyan:"#59c9ff", green:"#59ffb0",
+        "font-heading":"'Audiowide', sans-serif", "font-body":"'Sora', sans-serif",
+        "radius-sm":"10px", "radius-md":"16px", "radius-lg":"999px", "radius-xl":"999px", "heading-tracking":"0px",
+        "studio-bg1":"#130940", "studio-bg2":"#180c4c", "studio-ink":"#f1ecff", "studio-ink-soft":"#d3c5ff",
+        "studio-muted":"#9a89c9", "studio-card":"#150b48", "studio-border":"#3a1f7a", "studio-border-soft":"#2a1560",
+        "studio-input-bg":"#0e0638", "studio-active-bg":"#a259ff", "studio-active-text":"#0a0420", "hero-opacity":".75" },
+      three: { mode: "orbit", speed: .7, light1: 0xa259ff, light2: 0x59c9ff, core: { geo: "icosahedron", color: 0xa259ff, wireframe: false }, satellites: 8, satColor: 0x59c9ff, particleCount: 700, particleColor: 0xffffff }
+    },
+    copper: {
+      label: "Copper Industrial", swatch: ["#161311", "#c9793f", "#8a8578"],
+      vars: { bg:"#161311", bg2:"#1c1815", panel:"#201b17", panel2:"#28221d", white:"#eee6dc", "white-dark":"#d9cdbd",
+        muted:"#9c8f7f", orange:"#c9793f", orange2:"#e6a15f", "orange-dark":"#a15c28", line:"rgba(201,121,63,.22)",
+        glass:"rgba(201,121,63,.06)", purple:"#8a8578", cyan:"#7f9c92", green:"#8f9c7f",
+        "font-heading":"'Bebas Neue', sans-serif", "font-body":"'Inter', sans-serif",
+        "radius-sm":"2px", "radius-md":"4px", "radius-lg":"6px", "radius-xl":"8px", "heading-tracking":".5px",
+        "studio-bg1":"#201b17", "studio-bg2":"#28221d", "studio-ink":"#eee6dc", "studio-ink-soft":"#cabfae",
+        "studio-muted":"#9c8f7f", "studio-card":"#221d19", "studio-border":"#4a3d30", "studio-border-soft":"#3a2f25",
+        "studio-input-bg":"#181410", "studio-active-bg":"#c9793f", "studio-active-text":"#161311", "hero-opacity":".55" },
+      three: { mode: "shapes", speed: .35, light1: 0xc9793f, light2: 0xe6a15f, shapes: [
+        { geo: "torus", color: 0xc9793f }, { geo: "ring", color: 0xe6a15f, wireframe: true }, { geo: "dodecahedron", color: 0x8a8578, wireframe: true }
+      ]}
+    },
+    prism: {
+      label: "Holographic Prism", swatch: ["#0b0b12", "#ff9ff3", "#9ffff0"],
+      vars: { bg:"#0b0b12", bg2:"#101018", panel:"#14141f", panel2:"#191926", white:"#f5f5ff", "white-dark":"#e0e0f5",
+        muted:"#9494b8", orange:"#ff9ff3", orange2:"#9ffff0", "orange-dark":"#d976c9", line:"rgba(255,159,243,.2)",
+        glass:"rgba(159,255,240,.06)", purple:"#c99fff", cyan:"#9ffff0", green:"#9fffc0",
+        "font-heading":"'Unbounded', sans-serif", "font-body":"'Inter', sans-serif",
+        "radius-sm":"8px", "radius-md":"14px", "radius-lg":"20px", "radius-xl":"28px", "heading-tracking":"-.5px",
+        "studio-bg1":"#14141f", "studio-bg2":"#191926", "studio-ink":"#f5f5ff", "studio-ink-soft":"#dcdcf2",
+        "studio-muted":"#9494b8", "studio-card":"#16162280", "studio-border":"#3a3a52", "studio-border-soft":"#2a2a3c",
+        "studio-input-bg":"#101018", "studio-active-bg":"#ff9ff3", "studio-active-text":"#0b0b12", "hero-opacity":".8" },
+      three: { mode: "particles", speed: .9, light1: 0xff9ff3, light2: 0x9ffff0, particleCount: 1000, particleColor: 0x9ffff0, particleSpread: 95, shapes: [
+        { geo: "octahedron", color: 0xff9ff3, wireframe: true }, { geo: "torusKnot", color: 0x9ffff0, wireframe: true }
+      ]}
+    },
+  };
+
+  const DEFAULT_VARS_SNAPSHOT = {}; // captured on first run so "default" can always restore exactly
+  let currentThemeId = "default";
+
+  function applyTheme(id) {
+    const theme = THEME_DEFS[id];
+    if (!theme) return;
+    const root = document.documentElement.style;
+
+    if (id === "default") {
+      // restore every var we've ever overridden back to its stylesheet default
+      Object.keys(DEFAULT_VARS_SNAPSHOT).forEach((k) => root.setProperty("--" + k, DEFAULT_VARS_SNAPSHOT[k]));
+    } else {
+      Object.entries(theme.vars).forEach(([k, v]) => {
+        if (!(k in DEFAULT_VARS_SNAPSHOT)) {
+          DEFAULT_VARS_SNAPSHOT[k] = getComputedStyle(document.documentElement).getPropertyValue("--" + k).trim();
+        }
+        root.setProperty("--" + k, v);
+      });
+    }
+
+    document.body.dataset.theme = id;
+    currentThemeId = id;
+    rebuild3D(theme.three);
+    updateThemePanelActive();
+  }
+
+  // ---------- Customization panel UI ----------
+  function buildThemePanel() {
+    const grid = document.getElementById("themeGrid");
+    if (!grid) return;
+    grid.innerHTML = "";
+    Object.entries(THEME_DEFS).forEach(([id, t]) => {
+      const card = document.createElement("button");
+      card.type = "button";
+      card.className = "theme-swatch-btn";
+      card.dataset.themeId = id;
+      card.innerHTML = `
+        <span class="theme-swatch-preview">
+          <span style="background:${t.swatch[0]}"></span>
+          <span style="background:${t.swatch[1]}"></span>
+          <span style="background:${t.swatch[2]}"></span>
+        </span>
+        <span class="theme-swatch-label">${t.label}</span>
+      `;
+      card.onclick = () => applyTheme(id);
+      grid.appendChild(card);
+    });
+    updateThemePanelActive();
+  }
+
+  function updateThemePanelActive() {
+    document.querySelectorAll(".theme-swatch-btn").forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.themeId === currentThemeId);
+    });
+  }
+
+  function toggleThemePanel() {
+    document.getElementById("themePanel").classList.toggle("open");
+  }
+
+  document.addEventListener("DOMContentLoaded", buildThemePanel);
+</script>
+
+<!-- ============================================================ -->
+<!-- ========== CREATOR AI PLATFORM (added functionality) ======= -->
+<!-- ============================================================ -->
+<script>
+(function () {
+  "use strict";
+
+  /* -------------------- safe local storage -------------------- */
+  const store = {
+    get(key, fallback) {
+      try {
+        const raw = localStorage.getItem(key);
+        if (raw === null || raw === undefined) return fallback;
+        return JSON.parse(raw);
+      } catch (e) {
+        console.log("[v0] store.get failed, using fallback:", key, e.message);
+        try { localStorage.removeItem(key); } catch (_) {}
+        return fallback;
+      }
+    },
+    set(key, val) {
+      try { localStorage.setItem(key, JSON.stringify(val)); return true; }
+      catch (e) { console.log("[v0] store.set failed:", key, e.message); return false; }
+    }
+  };
+  const K = {
+    aicfg: "cf_aicfg", lang: "cf_lang", vault: "cf_vault",
+    history: "cf_history", voice: "cf_voice"
+  };
+
+  /* -------------------- helpers -------------------- */
+  const esc = (window.escapeHtml) ? window.escapeHtml : function (t) {
+    const d = document.createElement("div"); d.textContent = t == null ? "" : String(t); return d.innerHTML;
+  };
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  const rand = (arr) => arr[Math.floor(Math.random() * arr.length)];
+  const shuffle = (arr) => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  const clampScore = (n) => Math.max(30, Math.min(98, Math.round(n)));
+  function hashStr(s) { let h = 0; s = String(s || ""); for (let i = 0; i < s.length; i++) { h = (h << 5) - h + s.charCodeAt(i); h |= 0; } return Math.abs(h); }
+  function val(v) { return (v && String(v).trim()) ? String(v).trim() : ""; }
+  function orDefault(v, d) { return val(v) || d; }
+
+  function toast(msg) {
+    let el = document.getElementById("cfToast");
+    if (!el) { el = document.createElement("div"); el.id = "cfToast"; el.className = "cf-toast"; document.body.appendChild(el); }
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(el._t);
+    el._t = setTimeout(() => el.classList.remove("show"), 1800);
+  }
+
+  /* -------------------- languages -------------------- */
+  const LANGS = ["English", "Urdu", "Roman Urdu", "Arabic", "Spanish", "French", "German", "Hindi", "Portuguese", "Italian"];
+  const getLang = () => store.get(K.lang, "English");
+
+  /* -------------------- AI provider adapter -------------------- */
+  const AIProvider = {
+    cfg() { return store.get(K.aicfg, { endpoint: "", model: "", key: "", system: "" }); },
+    isConfigured() { const c = this.cfg(); return !!(val(c.endpoint) && val(c.model)); },
+    async generateAI(prompt, opts) {
+      opts = opts || {};
+      const c = this.cfg();
+      if (!this.isConfigured()) throw new Error("AI provider not configured");
+      const headers = { "Content-Type": "application/json" };
+      if (val(c.key)) headers["Authorization"] = "Bearer " + c.key;
+      const messages = [];
+      const sys = val(opts.system) || val(c.system) || "You are Copyforge Creator AI, an expert content strategist. Be concise, practical and specific.";
+      messages.push({ role: "system", content: sys });
+      messages.push({ role: "user", content: prompt });
+      const res = await fetch(c.endpoint, {
+        method: "POST", headers,
+        body: JSON.stringify({ model: c.model, messages, temperature: 0.85 })
+      });
+      if (!res.ok) throw new Error("AI request failed (HTTP " + res.status + ")");
+      const data = await res.json();
+      const text = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+      if (!text) throw new Error("Empty AI response");
+      return String(text).trim();
+    }
+  };
+
+  function updateModeBadge() {
+    const badge = document.getElementById("cfModeBadge");
+    const txt = document.getElementById("cfModeText");
+    if (!badge || !txt) return;
+    if (AIProvider.isConfigured()) {
+      badge.classList.add("live"); badge.classList.remove("offline");
+      txt.textContent = "AI Live";
+    } else {
+      badge.classList.add("offline"); badge.classList.remove("live");
+      txt.textContent = "Offline Mode";
+    }
+  }
+
+  function langNotice() {
+    const lang = getLang();
+    if (lang === "English") return "";
+    if (AIProvider.isConfigured()) return "";
+    return `<div class="cf-notice info"><span>🌐</span><span>Offline mode generates in English. Connect an AI provider in <b>Settings</b> to receive polished <b>${esc(lang)}</b> output that preserves tone, audience and CTA.</span></div>`;
+  }
+
+  /* -------------------- vault & history -------------------- */
+  function saveToVault(item) {
+    const vault = store.get(K.vault, []);
+    item.id = uid(); item.date = Date.now(); item.fav = false;
+    vault.unshift(item);
+    store.set(K.vault, vault.slice(0, 500));
+    toast("Saved to Vault");
+  }
+  function addHistory(feature, title, content) {
+    const h = store.get(K.history, []);
+    h.unshift({ id: uid(), date: Date.now(), feature, title: title || feature, content: content || "" });
+    store.set(K.history, h.slice(0, 200));
+  }
+
+  /* ============================================================ */
+  /*  OFFLINE CONTENT LIBRARIES                                   */
+  /* ============================================================ */
+  const HOOK_LIB = {
+    Curiosity: ["Nobody is talking about this side of {t}…", "The truth about {t} that changed everything for me", "I wish someone told me this about {t} way sooner", "There's a hidden reason your {t} isn't working", "This tiny {t} detail changes the whole game"],
+    Question: ["What if everything you know about {t} is wrong?", "Are you making these {t} mistakes without knowing?", "Why does {t} feel so hard? Here's the real answer", "Ever wondered how top creators really do {t}?", "Can I be honest about {t} for a second?"],
+    Contrarian: ["Stop doing {t} the way everyone tells you", "Popular {t} advice is quietly holding you back", "Unpopular opinion: {t} is easier than they claim", "Everyone is wrong about {t}. Here's proof.", "Delete these {t} 'rules' immediately"],
+    Story: ["6 months ago I knew nothing about {t}. Today…", "This {t} mistake almost made me quit", "I tried {t} for 30 days — here's what happened", "The moment {t} finally clicked for me", "My first {t} attempt was a disaster. Watch this."],
+    Educational: ["3 {t} tips that actually work in 2024", "The 60-second beginner's guide to {t}", "Save this before you try {t} again", "{t} explained like you're completely new", "The only {t} framework you'll ever need"],
+    Emotional: ["If {t} feels overwhelming right now, watch this", "This is your sign to finally start {t}", "You are closer to {t} than you think", "Struggling with {t}? You're not alone", "The {t} pep talk you didn't know you needed"],
+    "Problem/Solution": ["Struggling with {t}? Do this instead.", "The fix for your {t} problem is simpler than you think", "Broken {t}? Here's the 3-step repair", "Turn your worst {t} into your best result", "Stop wasting time — fix {t} today"],
+    "Bold statement": ["{t} will look completely different in 2 years", "You're wasting time on {t}. Here's the data.", "{t} is the most underrated skill right now", "Master {t} and everything else gets easier", "The {t} shortcut nobody wants you to know"]
+  };
+  const FORMATS = ["Short video", "Carousel", "Reel", "Static post", "Story series", "Long-form video", "Livestream", "Text post"];
+  const CTAS = ["Follow for more", "Save this for later", "Comment your take", "Link in bio", "Share with a friend", "Tap to learn more", "Try it and DM me"];
+
+  function makeHooks(topic, platform, type, n) {
+    n = n || 10;
+    topic = topic || "your niche";
+    let pool = [];
+    if (type && HOOK_LIB[type]) pool = HOOK_LIB[type].slice();
+    else Object.values(HOOK_LIB).forEach((a) => pool.push(...a));
+    pool = shuffle(pool);
+    const out = [];
+    for (let i = 0; i < n; i++) out.push(pool[i % pool.length].replace(/\{t\}/g, topic));
+    return out;
+  }
+
+  /* ============================================================ */
+  /*  SCORE ESTIMATION (clearly labelled AI Assessment)          */
+  /* ============================================================ */
+  function estimate(seedStr, provided, weights) {
+    // provided = count of meaningful inputs; produces stable-ish score with light variance
+    const base = 55 + (provided * 4);
+    const seed = (hashStr(seedStr) % 18);
+    const jitter = Math.floor(Math.random() * 6);
+    return clampScore(base + seed + jitter + (weights || 0));
+  }
+
+  /* ============================================================ */
+  /*  TOOL REGISTRY                                               */
+  /* ============================================================ */
+  const TOOLS = {};
+  const ORDER = ["advisor", "whatpost", "hooks", "abtest", "script", "repurpose", "calendar", "score", "voice", "product", "promote", "website", "trends", "persona", "comments", "brief", "campaign", "templates", "vault", "history", "settings"];
+
+  /* ---- expose engine bits to tool file ---- */
+  window.CF = {
+    store, K, esc, wait, rand, shuffle, uid, clampScore, hashStr, val, orDefault,
+    toast, LANGS, getLang, AIProvider, updateModeBadge, langNotice,
+    saveToVault, addHistory, HOOK_LIB, FORMATS, CTAS, makeHooks, estimate,
+    TOOLS, ORDER, blocks: []
+  };
+
+  /* ============================================================ */
+  /*  RENDERING                                                   */
+  /* ============================================================ */
+  let currentTool = "advisor";
+
+  function buildTabs() {
+    const tabs = document.getElementById("creatorTabs");
+    if (!tabs) return;
+    tabs.innerHTML = "";
+    ORDER.forEach((id) => {
+      const t = TOOLS[id];
+      if (!t) return;
+      const btn = document.createElement("button");
+      btn.className = "tab-btn" + (id === currentTool ? " active" : "");
+      btn.innerHTML = (t.icon ? t.icon + " " : "") + esc(t.name);
+      btn.onclick = () => selectTool(id);
+      tabs.appendChild(btn);
+    });
+  }
+
+  function selectTool(id) {
+    if (!TOOLS[id]) return;
+    currentTool = id;
+    buildTabs();
+    renderTool(id);
+    const main = document.getElementById("creatorMain");
+    if (main) main.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function fieldHtml(f) {
+    const [id, label, type, opts] = f;
+    const wide = f[4] === "wide" || type === "textarea";
+    let input;
+    if (type === "select") {
+      input = `<select id="cf-f-${esc(id)}">${opts.map((o) => `<option value="${esc(o)}">${esc(o)}</option>`).join("")}</select>`;
+    } else if (type === "textarea") {
+      input = `<textarea id="cf-f-${esc(id)}" placeholder="${esc(opts || "")}"></textarea>`;
+    } else {
+      input = `<input type="text" id="cf-f-${esc(id)}" placeholder="${esc(opts || "")}">`;
+    }
+    return `<div class="field" style="${wide ? "grid-column:1/-1" : ""}"><label for="cf-f-${esc(id)}">${esc(label)}</label>${input}</div>`;
+  }
+
+  function readValues(fields) {
+    const v = {};
+    fields.forEach((f) => {
+      const el = document.getElementById("cf-f-" + f[0]);
+      v[f[0]] = el ? el.value.trim() : "";
+    });
+    return v;
+  }
+
+  function renderTool(id) {
+    const t = TOOLS[id];
+    const main = document.getElementById("creatorMain");
+    if (!t || !main) return;
+
+    if (t.custom) { t.custom(main); updateModeBadge(); return; }
+
+    const btnLabel = t.btnLabel || "Generate";
+    main.innerHTML = `
+      <h2 class="cf-panel-title"><span>${t.icon || ""}</span> ${esc(t.title)}</h2>
+      <p class="cf-panel-desc">${esc(t.desc)}</p>
+      ${t.notice ? `<div class="cf-notice"><span>ℹ️</span><span>${t.notice}</span></div>` : ""}
+      ${langNotice()}
+      <div class="form-section">
+        <div class="form-section-title">${esc(t.formTitle || "Details")}</div>
+        <div class="fields">${(t.fields || []).map(fieldHtml).join("")}</div>
+        <div class="btn-group">
+          <button class="generate-btn" id="cfGenBtn">${esc(btnLabel)}</button>
+          <button class="clear-btn" id="cfClearBtn">Clear</button>
+        </div>
+      </div>
+      <div class="cf-results" id="cfOut"></div>
+    `;
+    document.getElementById("cfGenBtn").onclick = () => runTool(id);
+    document.getElementById("cfClearBtn").onclick = () => {
+      (t.fields || []).forEach((f) => { const el = document.getElementById("cf-f-" + f[0]); if (el) el.value = (el.tagName === "SELECT" ? el.options[0].value : ""); });
+      document.getElementById("cfOut").innerHTML = "";
+    };
+    updateModeBadge();
+  }
+
+  /* -------------------- staged loader -------------------- */
+  async function runStages(out, stages) {
+    out.innerHTML = `<div class="cf-stages">${stages.map((s) => `<div class="cf-stage"><span class="cf-spin"></span><span>${esc(s)}</span></div>`).join("")}</div>`;
+    const els = Array.prototype.slice.call(out.querySelectorAll(".cf-stage"));
+    for (let i = 0; i < els.length; i++) {
+      els[i].classList.add("active");
+      await wait(360 + Math.random() * 260);
+      els[i].classList.remove("active"); els[i].classList.add("done");
+    }
+    await wait(160);
+  }
+
+  function animateMetersIn(container) {
+    container.querySelectorAll(".cf-meter > span").forEach((s) => {
+      const v = s.getAttribute("data-val") || "0";
+      requestAnimationFrame(() => { s.style.width = v + "%"; });
+    });
+    container.querySelectorAll(".cf-ring").forEach((r) => {
+      const v = parseInt(r.getAttribute("data-val") || "0", 10);
+      const num = r.querySelector(".cf-ring-num");
+      requestAnimationFrame(() => { r.style.setProperty("--val", v); });
+      if (num) {
+        let cur = 0; const step = Math.max(1, Math.round(v / 28));
+        const iv = setInterval(() => { cur += step; if (cur >= v) { cur = v; clearInterval(iv); } num.textContent = cur; }, 26);
+      }
+    });
+  }
+
+  /* -------------------- block (card) rendering -------------------- */
+  function actionsHtml(kinds) {
+    return `<div class="cf-card-actions">${kinds.map((k) => {
+      if (k === "copy") return `<button class="cf-act" data-act="copy">COPY</button>`;
+      if (k === "save") return `<button class="cf-act" data-act="save">SAVE</button>`;
+      if (k === "regen") return `<button class="cf-act" data-act="regen">REGENERATE</button>`;
+      if (k === "use") return `<button class="cf-act primary" data-act="use">USE THIS</button>`;
+      if (k === "fav") return `<button class="cf-act" data-act="fav">★ FAVORITE</button>`;
+      return "";
+    }).join("")}</div>`;
+  }
+
+  function blockCard(b, feature) {
+    const chips = (b.chips && b.chips.length)
+      ? `<div class="cf-meta-row">${b.chips.map((c) => `<span class="cf-chip ${c.cls || "neutral"}">${esc(c.label)}</span>`).join("")}</div>` : "";
+    return `<div class="cf-card" data-feature="${esc(feature)}">
+      <div class="cf-card-head">
+        <div class="cf-card-title">${b.title ? esc(b.title) : ""}</div>
+        ${actionsHtml(b.actions || ["copy", "save", "use"])}
+      </div>
+      ${chips}
+      <div class="cf-card-body">${esc(b.body)}</div>
+    </div>`;
+  }
+
+  function renderBlocks(out, blocks, feature, sourceLabel) {
+    const head = `<div class="cf-meta-row" style="margin-bottom:18px">
+      <span class="cf-chip ${sourceLabel.cls}">${esc(sourceLabel.label)}</span>
+      <span class="cf-chip neutral">${blocks.length} results</span>
+      <span class="cf-chip neutral">${esc(getLang())}</span>
+    </div>`;
+    out.innerHTML = head + blocks.map((b) => blockCard(b, feature)).join("");
+    animateMetersIn(out);
+  }
+
+  /* -------------------- run a tool -------------------- */
+  async function runTool(id) {
+    const t = TOOLS[id];
+    const out = document.getElementById("cfOut");
+    const btn = document.getElementById("cfGenBtn");
+    if (!t || !out) return;
+    const values = readValues(t.fields || []);
+    if (t.validate) {
+      const err = t.validate(values);
+      if (err) { out.innerHTML = `<div class="error">⚠️ ${esc(err)}</div>`; return; }
+    }
+    if (btn) { btn.disabled = true; btn._label = btn.textContent; btn.textContent = "WORKING…"; }
+    try {
+      if (t.kind === "dashboard") {
+        await runStages(out, t.stages || ["Analyzing inputs…", "Processing…", "Building results…"]);
+        const html = t.build(values, getLang());
+        out.innerHTML = html;
+        animateMetersIn(out);
+        addHistory(t.name, t.title, out.textContent.slice(0, 400));
+      } else {
+        // text tool: try live AI, fallback to offline
+        const offlineBlocks = t.generate(values, getLang());
+        let blocks = offlineBlocks, source = { label: "Local Generation", cls: "mid" };
+        if (AIProvider.isConfigured() && t.prompt) {
+          out.innerHTML = `<div class="loading"></div>`;
+          try {
+            const txt = await AIProvider.generateAI(t.prompt(values, getLang()), { system: t.system });
+            blocks = splitLive(txt);
+            source = { label: "AI Live", cls: "hi" };
+          } catch (e) {
+            blocks = offlineBlocks;
+            source = { label: "AI unavailable — local fallback", cls: "lo" };
+            console.log("[v0] live AI failed:", e.message);
+          }
+        }
+        renderBlocks(out, blocks, t.name, source);
+        addHistory(t.name, t.title, blocks.map((b) => (b.title ? b.title + ": " : "") + b.body).join("\n").slice(0, 400));
+      }
+    } catch (e) {
+      out.innerHTML = `<div class="error">❌ Something went wrong: ${esc(e.message)}</div>`;
+      console.log("[v0] runTool error:", e);
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = btn._label || "Generate"; }
+    }
+  }
+  window.CF.runTool = runTool;
+  window.CF.selectTool = selectTool;
+
+  function splitLive(txt) {
+    // split AI text into cards on blank lines / numbered items
+    let parts = txt.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
+    if (parts.length <= 1) parts = txt.split(/\n(?=\s*\d+[\.\)]\s)/).map((p) => p.trim()).filter(Boolean);
+    if (parts.length <= 1) parts = [txt.trim()];
+    return parts.map((p, i) => ({ title: "AI Result " + (i + 1), body: p.replace(/^\s*\d+[\.\)]\s*/, ""), actions: ["copy", "save", "use"] }));
+  }
+
+  /* -------------------- delegated card actions -------------------- */
+  document.addEventListener("click", function (e) {
+    const b = e.target.closest && e.target.closest("[data-act]");
+    if (!b) return;
+    const card = b.closest(".cf-card");
+    if (!card) return;
+    const act = b.getAttribute("data-act");
+    const bodyEl = card.querySelector(".cf-card-body");
+    const titleEl = card.querySelector(".cf-card-title");
+    const text = bodyEl ? bodyEl.textContent : "";
+    const title = titleEl ? titleEl.textContent.trim() : "";
+    const feature = card.getAttribute("data-feature") || "Creator AI";
+
+    if (act === "copy" || act === "use") {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => toast(act === "use" ? "Applied & copied" : "Copied"), () => toast("Copy blocked by browser"));
+      } else { toast("Copy not supported"); }
+    } else if (act === "save" || act === "fav") {
+      saveToVault({ feature, title: title || feature, content: text, type: feature });
+    } else if (act === "regen") {
+      runTool(currentTool);
+    }
+  });
+
+  /* ============================================================ */
+  /*  NAV: open / close creator                                   */
+  /* ============================================================ */
+  function openCreator() {
+    const studio = document.getElementById("studio");
+    if (studio) studio.style.display = "none";
+    const c = document.getElementById("creator");
+    if (!c) return;
+    c.style.display = "block";
+    buildTabs();
+    renderTool(currentTool);
+    updateModeBadge();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+  function closeCreator() {
+    const c = document.getElementById("creator");
+    if (c) c.style.display = "none";
+    const f = document.getElementById("features");
+    if (f) f.scrollIntoView({ behavior: "smooth" });
+  }
+  function creatorGoto(id) {
+    openCreator();
+    selectTool(id);
+  }
+  window.openCreator = openCreator;
+  window.closeCreator = closeCreator;
+  window.creatorGoto = creatorGoto;
+
+  /* ============================================================ */
+  /*  INIT                                                        */
+  /* ============================================================ */
+  function initCreator() {
+    // language selector
+    const langSel = document.getElementById("cfLang");
+    if (langSel) {
+      langSel.innerHTML = LANGS.map((l) => `<option value="${esc(l)}">${esc(l)}</option>`).join("");
+      langSel.value = getLang();
+      langSel.onchange = () => { store.set(K.lang, langSel.value); if (document.getElementById("creator").style.display === "block") renderTool(currentTool); };
+    }
+    updateModeBadge();
+    if (window.CF_registerTools) window.CF_registerTools(); // defined in tools script
+    // cursor hover effect for new interactive elements
+    document.querySelectorAll("#creator .tab-btn, #creator .btn, #creator .cf-act, #creator .cf-tpl").forEach((el) => {
+      el.addEventListener("mouseenter", () => document.body.classList.add("hovering"));
+      el.addEventListener("mouseleave", () => document.body.classList.remove("hovering"));
+    });
+  }
+  window.CF.initCreator = initCreator;
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initCreator);
+  else initCreator();
+})();
+</script>
+
+<!-- ========== CREATOR AI: TOOL DEFINITIONS ========== -->
+<script>
+window.CF_registerTools = function () {
+  const CF = window.CF;
+  const { esc, val, orDefault, rand, shuffle, makeHooks, estimate, clampScore, hashStr, HOOK_LIB, FORMATS, CTAS, getLang, TOOLS } = CF;
+
+  /* ---------- shared render helpers ---------- */
+  function meter(label, v) {
+    return `<div class="cf-meter-row"><div class="cf-meter-label"><span>${esc(label)}</span><span>${v}</span></div><div class="cf-meter"><span data-val="${v}"></span></div></div>`;
+  }
+  function ring(v, lbl) {
+    return `<div class="cf-ring" data-val="${v}"><div class="cf-ring-inner"><div class="cf-ring-num">0</div><div class="cf-ring-lbl">${esc(lbl || "SCORE")}</div></div></div>`;
+  }
+  function miniList(title, items, icon) {
+    return `<div class="cf-mini"><h4>${icon ? icon + " " : ""}${esc(title)}</h4><ul>${items.map((it) => {
+      const c = it && it.cls ? ` class="${it.cls}"` : "";
+      const tx = it && it.text !== undefined ? it.text : it;
+      return `<li${c}>${esc(tx)}</li>`;
+    }).join("")}</ul></div>`;
+  }
+  function label(title) { return `<div class="cf-section-label">${esc(title)}</div>`; }
+  function reportBar(feature, title) {
+    return `<div style="display:flex;gap:8px;margin-top:24px;flex-wrap:wrap">
+      <button class="cf-act primary" onclick="CF.saveText('${esc(feature)}','${esc(title)}')">SAVE TO VAULT</button>
+      <button class="cf-act" onclick="CF.copyText()">COPY REPORT</button>
+      <button class="cf-act" onclick="CF.runTool('${esc(CF.currentIdFor(feature) || "")}')">REGENERATE</button>
+    </div>`;
+  }
+  function dataNotice() {
+    return `<div class="cf-notice"><span>🔒</span><span>Some platform data (followers, views, private analytics) <b>cannot be directly accessed</b> from a browser-only app due to platform &amp; CORS restrictions. All scores below are <b>AI estimates based on the information you provided</b> — they are not live analytics.</span></div>`;
+  }
+
+  /* ---------- report save/copy globals ---------- */
+  CF.saveText = function (feature, title) {
+    const out = document.getElementById("cfOut");
+    CF.saveToVault({ feature, title, content: out ? out.innerText.slice(0, 5000) : "", type: feature });
+  };
+  CF.copyText = function () {
+    const out = document.getElementById("cfOut");
+    const txt = out ? out.innerText : "";
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(() => CF.toast("Report copied"), () => CF.toast("Copy blocked"));
+  };
+  CF._featureToId = {};
+  CF.currentIdFor = function (feature) { return CF._featureToId[feature]; };
+  CF.prefill = function (id, vals) {
+    CF.selectTool(id);
+    setTimeout(() => {
+      Object.keys(vals || {}).forEach((k) => { const el = document.getElementById("cf-f-" + k); if (el) el.value = vals[k]; });
+      CF.toast("Template loaded");
+    }, 30);
+  };
+
+  /* ---------- text utils ---------- */
+  function sentences(t) { return String(t || "").replace(/\s+/g, " ").split(/(?<=[.!?])\s+/).map((s) => s.trim()).filter(Boolean); }
+  function keyPoints(t, n) { const s = sentences(t); return s.length ? s.slice(0, n) : [String(t || "").trim()].filter(Boolean); }
+  function topicOf(t) { const w = String(t || "").replace(/\s+/g, " ").trim().split(" ").slice(0, 5).join(" "); return w || "your topic"; }
+  function hashtags(niche) { const base = ["#creator", "#contentcreator", "#growth"]; const n = val(niche); if (n) base.unshift("#" + n.toLowerCase().replace(/[^a-z0-9]/g, "")); return base.slice(0, 5).join(" "); }
+
+  /* ============================================================ */
+  /*  1. CREATOR ADVISOR (dashboard)                              */
+  /* ============================================================ */
+  function makeIdeas(niche, platform, audience, goal, n) {
+    niche = orDefault(niche, "your niche"); platform = orDefault(platform, "Instagram");
+    const angles = [
+      { t: "3 mistakes beginners make in " + niche, hook: "You're probably making at least one of these.", angle: "Educational listicle" },
+      { t: "My honest " + niche + " process (nothing hidden)", hook: "Nobody shows the boring middle part.", angle: "Behind-the-scenes" },
+      { t: "What I wish I knew before starting " + niche, hook: "This would've saved me months.", angle: "Personal lesson" },
+      { t: "Rating popular " + niche + " advice", hook: "Half of this is quietly wrong.", angle: "Reaction / hot take" },
+      { t: niche + " for total beginners in 60 seconds", hook: "Start here if you're new.", angle: "Quick guide" },
+      { t: "The tool that changed my " + niche + " workflow", hook: "I can't believe I waited this long.", angle: "Tool showcase" },
+      { t: "Answering your top " + niche + " questions", hook: "You keep asking me this one.", angle: "Q&A" },
+      { t: "A day in my life as a " + niche + " creator", hook: "It's less glamorous than you think.", angle: "Vlog / relatable" },
+      { t: "Before vs after: my " + niche + " glow-up", hook: "Give it time and it compounds.", angle: "Transformation" },
+      { t: "The " + niche + " trend everyone gets wrong", hook: "Do this instead.", angle: "Contrarian" },
+      { t: "Free " + niche + " resources I actually use", hook: "Save this, you'll need it.", angle: "Value drop" },
+      { t: "Reacting to my oldest " + niche + " content", hook: "We've come a long way.", angle: "Nostalgia" }
+    ];
+    const diffs = ["Easy", "Medium", "Ambitious"]; const prio = ["High", "High", "Medium", "Low"];
+    return shuffle(angles).slice(0, n).map((a, i) => {
+      const fmt = rand(FORMATS); const cta = rand(CTAS);
+      return {
+        title: "Idea #" + (i + 1) + ": " + a.t,
+        body: `Hook: "${a.hook}"\nPlatform: ${platform}\nFormat: ${fmt}\nContent angle: ${a.angle}\nCTA: ${cta}\nWhy this fits: Speaks directly to ${orDefault(audience, "your audience")} and supports "${orDefault(goal, "your main goal")}".\nDifficulty: ${rand(diffs)}\nPriority: ${prio[i % prio.length]}`,
+        chips: [{ label: platform, cls: "neutral" }, { label: a.angle, cls: "neutral" }, { label: prio[i % prio.length] + " priority", cls: i % 4 === 0 ? "hi" : "mid" }],
+        actions: ["copy", "save", "use"]
+      };
+    });
+  }
+
+  TOOLS.advisor = {
+    icon: "🤖", name: "Creator Advisor", title: "Creator Advisor AI",
+    desc: "Give us your profiles and context, then get a full brand analysis: a creator health score, a profile audit, and prioritized content opportunities.",
+    kind: "dashboard", btnLabel: "🔍 Analyze My Brand", formTitle: "Your Creator Profile",
+    stages: ["Analyzing creator profile…", "Analyzing content positioning…", "Analyzing website…", "Analyzing products…", "Finding content opportunities…", "Building recommendations…"],
+    fields: [
+      ["igUrl", "Instagram Profile URL", "text", "https://instagram.com/you"],
+      ["igUser", "Instagram Username", "text", "@you"],
+      ["ttUrl", "TikTok Profile URL", "text", "https://tiktok.com/@you"],
+      ["ttUser", "TikTok Username", "text", "@you"],
+      ["ytUrl", "YouTube Channel URL", "text", "https://youtube.com/@you"],
+      ["ytHandle", "YouTube Handle", "text", "@you"],
+      ["site", "Website URL", "text", "https://you.com"],
+      ["platform", "Main Platform", "select", ["Instagram", "TikTok", "YouTube", "LinkedIn", "X", "Multiple"]],
+      ["niche", "Creator Niche", "text", "e.g. Gaming"],
+      ["audience", "Target Audience", "text", "e.g. Gen-Z gamers"],
+      ["goal", "Main Goal", "text", "e.g. Grow audience & sell products"],
+      ["products", "Products / Services", "textarea", "List your products or services"]
+    ],
+    build(v) {
+      const groups = [!!(val(v.igUrl) || val(v.igUser)), !!(val(v.ttUrl) || val(v.ttUser)), !!(val(v.ytUrl) || val(v.ytHandle)), !!val(v.site), !!val(v.niche), !!val(v.audience), !!val(v.goal), !!val(v.products)];
+      const provided = groups.filter(Boolean).length;
+      const seed = (k) => (val(v.niche) + val(v.goal) + k);
+      const cats = [
+        ["Content Quality", estimate(seed("cq"), provided, 4)],
+        ["Brand Clarity", estimate(seed("bc"), provided, val(v.niche) ? 6 : -6)],
+        ["Consistency", estimate(seed("cons"), provided, 0)],
+        ["Audience Fit", estimate(seed("af"), provided, val(v.audience) ? 6 : -8)],
+        ["Engagement Potential", estimate(seed("ep"), provided, 2)],
+        ["Content Variety", estimate(seed("cv"), provided, 0)],
+        ["Profile Optimization", estimate(seed("po"), provided, (val(v.igUser) || val(v.ytHandle)) ? 4 : -4)],
+        ["Conversion Potential", estimate(seed("conv"), provided, (val(v.products) || val(v.site)) ? 8 : -10)]
+      ];
+      const overall = clampScore(cats.reduce((a, c) => a + c[1], 0) / cats.length);
+
+      const working = [];
+      if (val(v.niche)) working.push({ text: "Clear niche defined (" + v.niche + ") — great for targeting", cls: "good" });
+      if (val(v.audience)) working.push({ text: "You know who you're speaking to", cls: "good" });
+      if (val(v.site)) working.push({ text: "Website connected — supports conversions", cls: "good" });
+      if (val(v.products)) working.push({ text: "Products defined — content can drive sales", cls: "good" });
+      if (!working.length) working.push({ text: "Add more profile detail to surface strengths", cls: "warn" });
+
+      const improve = [];
+      if (!val(v.niche)) improve.push({ text: "Niche not specified — sharpen your positioning", cls: "warn" });
+      if (!val(v.audience)) improve.push({ text: "Define a target audience for tighter content", cls: "warn" });
+      if (!val(v.site)) improve.push({ text: "No website link — you may be leaking conversions", cls: "warn" });
+      if (!(val(v.igUser) || val(v.ttUser) || val(v.ytHandle))) improve.push({ text: "Add consistent handles across platforms", cls: "warn" });
+      if (!improve.length) improve.push({ text: "Tighten your bio CTA and pinned content", cls: "warn" });
+
+      const fixes = [
+        { text: "Rewrite your bio with a clear promise + CTA", cls: "fix" },
+        { text: "Pin 3 posts that define your brand", cls: "fix" },
+        { text: "Ship a consistent posting rhythm this week", cls: "fix" }
+      ];
+
+      const ideas = makeIdeas(v.niche, v.platform, v.audience, v.goal, 4);
+
+      return `
+        ${dataNotice()}
+        <div class="cf-score-hero">
+          ${ring(overall, "AI SCORE")}
+          <div class="cf-score-copy">
+            <h3>Creator Health — ${overall}/100 <span class="cf-chip hi" style="vertical-align:middle">AI Assessment</span></h3>
+            <p>An estimate based on the information you provided. Use it to prioritize what to improve first — not as live platform analytics.</p>
+          </div>
+        </div>
+        ${label("Health Breakdown")}
+        <div class="cf-grid two">
+          <div class="cf-mini">${cats.slice(0, 4).map((c) => meter(c[0], c[1])).join("")}</div>
+          <div class="cf-mini">${cats.slice(4).map((c) => meter(c[0], c[1])).join("")}</div>
+        </div>
+        ${label("Profile Audit")}
+        <div class="cf-grid three">
+          ${miniList("What's Working", working, "✅")}
+          ${miniList("Needs Improvement", improve, "⚠️")}
+          ${miniList("Priority Fixes", fixes, "🎯")}
+        </div>
+        ${label("Top Content Opportunities")}
+        <div class="cf-results">${ideas.map((b) => CF.blockCardExternal(b, "Creator Advisor")).join("")}</div>
+        <div class="cf-notice info" style="margin-top:20px"><span>➡️</span><span>Want 10 full ideas? Open <b>Post Ideas</b>. Want to test opening lines? Try the <b>Hook Generator</b>.</span></div>
+        ${reportBar("Creator Advisor", "Brand analysis")}
+      `;
+    }
+  };
+
+  /* ============================================================ */
+  /*  2. POST IDEAS (text)                                        */
+  /* ============================================================ */
+  TOOLS.whatpost = {
+    icon: "🎯", name: "Post Ideas", title: "What Should I Post Next?",
+    desc: "Ten ready-to-shoot content ideas tailored to your niche, platform, audience and goals — each with a hook, format, angle, CTA and priority.",
+    kind: "text", btnLabel: "Generate 10 Ideas", formTitle: "Context",
+    fields: [
+      ["niche", "Creator Niche", "text", "e.g. Gaming"],
+      ["platform", "Platform", "select", ["Instagram", "TikTok", "YouTube", "YouTube Shorts", "LinkedIn", "X"]],
+      ["audience", "Target Audience", "text", "e.g. new gamers"],
+      ["goal", "Main Goal", "text", "e.g. grow & sell"],
+      ["about", "About your existing content", "textarea", "What do you usually post?"],
+      ["products", "Products / Services", "text", "optional"]
+    ],
+    generate(v) { return makeIdeas(v.niche, v.platform, v.audience, v.goal, 10); },
+    system: "You are a content strategist. Return exactly 10 concrete content ideas.",
+    prompt(v, lang) {
+      return `Give me 10 content ideas for a ${orDefault(v.niche, "general")} creator on ${orDefault(v.platform, "Instagram")}.
+Audience: ${orDefault(v.audience, "general")}. Goal: ${orDefault(v.goal, "grow")}. Products: ${orDefault(v.products, "none")}. Existing content: ${orDefault(v.about, "n/a")}.
+For each idea include: Title, Hook, Platform, Format, Content angle, CTA, Why this fits, Difficulty, Priority. Number them 1-10. Write in ${lang}.`;
+    }
+  };
+
+  /* ============================================================ */
+  /*  3. HOOK GENERATOR (text)                                    */
+  /* ============================================================ */
+  TOOLS.hooks = {
+    icon: "🔥", name: "Hook Generator", title: "Hook Generator",
+    desc: "Scroll-stopping opening lines. Pick a hook type or mix them, and generate ten variations you can copy, regenerate, or use instantly.",
+    kind: "text", btnLabel: "Generate 10 Hooks", formTitle: "Hook Settings",
+    fields: [
+      ["topic", "Topic", "text", "What is the content about?"],
+      ["platform", "Platform", "select", ["TikTok", "Instagram Reels", "YouTube Shorts", "YouTube", "LinkedIn", "X"]],
+      ["tone", "Tone", "select", ["Bold", "Friendly", "Educational", "Emotional", "Playful", "Professional"]],
+      ["audience", "Audience", "text", "e.g. beginners"],
+      ["type", "Hook Type", "select", ["Mixed", "Curiosity", "Question", "Contrarian", "Story", "Educational", "Emotional", "Problem/Solution", "Bold statement"]]
+    ],
+    generate(v) {
+      const type = v.type === "Mixed" ? null : v.type;
+      return makeHooks(orDefault(v.topic, "your topic"), orDefault(v.platform, "TikTok"), type, 10).map((h, i) => ({
+        title: "Hook #" + (i + 1),
+        body: h,
+        chips: [{ label: v.type || "Mixed", cls: "neutral" }, { label: orDefault(v.platform, "TikTok"), cls: "neutral" }],
+        actions: ["copy", "regen", "use", "save"]
+      }));
+    },
+    system: "You write viral short-form hooks. Return only the hooks, numbered.",
+    prompt(v, lang) { return `Write 10 ${v.type && v.type !== "Mixed" ? v.type + " " : ""}hooks about "${orDefault(v.topic, "the topic")}" for ${orDefault(v.platform, "TikTok")}, tone: ${orDefault(v.tone, "bold")}, audience: ${orDefault(v.audience, "general")}. One hook per line, numbered 1-10. Write in ${lang}.`; }
+  };
+
+  /* ============================================================ */
+  /*  4. A/B HOOK TESTER (dashboard)                              */
+  /* ============================================================ */
+  function hookScore(h) {
+    h = String(h || "");
+    const len = h.length;
+    const hasNum = /\d/.test(h) ? 8 : 0;
+    const hasQ = /\?/.test(h) ? 6 : 0;
+    const power = (h.match(/\b(secret|mistake|stop|never|proven|instantly|nobody|truth|free|why|how)\b/gi) || []).length * 4;
+    const lenScore = len > 8 && len < 70 ? 12 : (len >= 70 ? 2 : 4);
+    const base = 58 + hasNum + hasQ + power + lenScore + (hashStr(h) % 8);
+    return {
+      clarity: clampScore(base + (len < 70 ? 6 : -4)),
+      curiosity: clampScore(base + hasQ + (/\b(secret|nobody|truth)\b/i.test(h) ? 8 : 0)),
+      strength: clampScore(base + power),
+      audience: clampScore(base + (/you|your/i.test(h) ? 8 : -4)),
+      scroll: clampScore(base + hasNum + (len < 55 ? 6 : 0)),
+      platform: clampScore(base + (len < 60 ? 6 : -2)),
+      overall: clampScore(base)
+    };
+  }
+  TOOLS.abtest = {
+    icon: "🧪", name: "A/B Hook Tester", title: "A/B Hook Tester",
+    desc: "Compare two hooks side by side across clarity, curiosity, strength, audience fit and scroll-stopping potential. These are AI estimates, not live performance data.",
+    kind: "dashboard", btnLabel: "Compare Hooks", formTitle: "Two Hooks",
+    stages: ["Reading Hook A…", "Reading Hook B…", "Scoring dimensions…", "Picking a winner…"],
+    fields: [["hookA", "Hook A", "textarea", "Paste hook A"], ["hookB", "Hook B", "textarea", "Paste hook B"], ["audience", "Audience", "text", "optional"], ["platform", "Platform", "select", ["TikTok", "Instagram", "YouTube", "LinkedIn", "X"]]],
+    validate(v) { if (!val(v.hookA) || !val(v.hookB)) return "Please paste both Hook A and Hook B."; return ""; },
+    build(v) {
+      const a = hookScore(v.hookA), b = hookScore(v.hookB);
+      const winA = a.overall >= b.overall;
+      const dims = [["Clarity", "clarity"], ["Curiosity", "curiosity"], ["Strength", "strength"], ["Audience Fit", "audience"], ["Scroll-Stopping", "scroll"], ["Platform Fit", "platform"]];
+      const weaker = winA ? "B" : "A";
+      return `
+        <div class="cf-notice"><span>🧠</span><span>Scores are <b>AI estimates</b> based on wording heuristics (length, numbers, questions, power words). They are not real audience test data.</span></div>
+        <div class="cf-grid two">
+          <div class="cf-mini" style="${winA ? "border-color:var(--orange);border-width:2px" : ""}">
+            <h4>Hook A ${winA ? "🏆" : ""} — ${a.overall}/100</h4>
+            <div class="cf-card-body" style="margin-bottom:14px">${esc(v.hookA)}</div>
+            ${dims.map((d) => meter(d[0], a[d[1]])).join("")}
+          </div>
+          <div class="cf-mini" style="${!winA ? "border-color:var(--orange);border-width:2px" : ""}">
+            <h4>Hook B ${!winA ? "🏆" : ""} — ${b.overall}/100</h4>
+            <div class="cf-card-body" style="margin-bottom:14px">${esc(v.hookB)}</div>
+            ${dims.map((d) => meter(d[0], b[d[1]])).join("")}
+          </div>
+        </div>
+        ${label("Verdict")}
+        <div class="cf-card" data-feature="A/B Hook Tester">
+          <div class="cf-card-head"><div class="cf-card-title">🏆 Winner: Hook ${winA ? "A" : "B"}</div>${""}</div>
+          <div class="cf-card-body">Why it wins: stronger balance of curiosity and clarity for ${orDefault(v.platform, "your platform")}${val(v.audience) ? " and " + v.audience : ""}. It reads faster and sets a clearer expectation.
+
+How to improve Hook ${weaker}: tighten it under ~60 characters, add a concrete number or a "you/your", and lead with the most surprising word. Try turning it into a question or a bold claim.</div>
+        </div>
+        ${reportBar("A/B Hook Tester", "Hook comparison")}
+      `;
+    }
+  };
+
+  /* ============================================================ */
+  /*  5. SCRIPT STUDIO (text)                                     */
+  /* ============================================================ */
+  TOOLS.script = {
+    icon: "🎬", name: "Script Studio", title: "Script Studio",
+    desc: "Full short-form or long-form video scripts with a hook, scenes, ending and CTA — plus B-roll, on-screen text, voiceover, camera and editing notes.",
+    kind: "text", btnLabel: "Write Script", formTitle: "Script Brief",
+    fields: [
+      ["topic", "Topic", "text", "What's the video about?"],
+      ["platform", "Platform", "select", ["TikTok", "Instagram Reels", "YouTube Shorts", "YouTube"]],
+      ["duration", "Duration", "select", ["15-30 seconds", "30-60 seconds", "1-2 minutes", "5-8 minutes"]],
+      ["tone", "Tone", "select", ["Fun & Viral", "Educational", "Emotional", "Authentic", "Promotional"]],
+      ["audience", "Audience", "text", "e.g. beginners"],
+      ["goal", "Goal", "text", "e.g. get follows"]
+    ],
+    generate(v) {
+      const t = orDefault(v.topic, "your topic");
+      const cta = "If this helped, follow for more on " + t + ".";
+      return [
+        { title: "HOOK (0-3s)", body: rand(HOOK_LIB["Curiosity"]).replace(/\{t\}/g, t) + "\n[On screen: bold text of the hook]", actions: ["copy", "save"] },
+        { title: "SCENE 1 — Setup", body: "Frame the problem your " + orDefault(v.audience, "viewer") + " feels around " + t + ". Keep it to one clear sentence, then promise the payoff.", actions: ["copy", "save"] },
+        { title: "SCENE 2 — Value", body: "Deliver the main point about " + t + ". Show, don't just tell — demonstrate the step or the result on screen.", actions: ["copy", "save"] },
+        { title: "SCENE 3 — Proof / Twist", body: "Add a surprising detail, example, or mini result that makes it credible and re-hooks attention.", actions: ["copy", "save"] },
+        { title: "ENDING", body: "Recap the one thing to remember about " + t + " in a single punchy line.", actions: ["copy", "save"] },
+        { title: "CTA", body: cta, actions: ["copy", "save", "use"] },
+        { title: "PRODUCTION NOTES", body: "B-roll: close-ups of the subject, screen recordings, quick cutaways.\nOn-screen text: hook, 2-3 keyword captions, CTA.\nVoiceover: " + orDefault(v.tone, "authentic") + ", conversational pace.\nCamera: mix of talking-head + detail shots, eye-level.\nEditing: fast cuts every 2-3s, captions on, punch-in on key lines. Target length: " + orDefault(v.duration, "30-60 seconds") + ".", actions: ["copy", "save"] }
+      ];
+    },
+    system: "You are a short-form video scriptwriter.",
+    prompt(v, lang) { return `Write a ${orDefault(v.duration, "30-60s")} ${orDefault(v.platform, "TikTok")} script about "${orDefault(v.topic, "the topic")}". Tone: ${orDefault(v.tone, "authentic")}. Audience: ${orDefault(v.audience, "general")}. Goal: ${orDefault(v.goal, "engagement")}.
+Structure: HOOK, SCENE 1, SCENE 2, SCENE 3, ENDING, CTA, and PRODUCTION NOTES (b-roll, on-screen text, voiceover, camera, editing). Write in ${lang}.`; }
+  };
+
+  /* ============================================================ */
+  /*  6. CONTENT REPURPOSER (text)                                */
+  /* ============================================================ */
+  TOOLS.repurpose = {
+    icon: "♻️", name: "Repurposer", title: "Content Repurposer",
+    desc: "Paste any long-form content — a script, article, caption or transcript — and turn it into a full multi-platform content pack in one click.",
+    kind: "text", btnLabel: "Generate Everything", formTitle: "Source Content",
+    fields: [["source", "Paste your content", "textarea", "Paste a YouTube script, blog article, caption, transcript or long-form text…"], ["tone", "Tone", "select", ["Match original", "Casual", "Professional", "Playful", "Bold"]], ["audience", "Audience", "text", "optional"]],
+    validate(v) { if (!val(v.source) || val(v.source).length < 20) return "Please paste at least a couple of sentences to repurpose."; return ""; },
+    generate(v) {
+      const kp = keyPoints(v.source, 6);
+      const topic = topicOf(v.source);
+      const p1 = kp[0] || topic, p2 = kp[1] || "", p3 = kp[2] || "";
+      const hooksList = makeHooks(topic, "TikTok", null, 10).map((h, i) => (i + 1) + ". " + h).join("\n");
+      const quotes = kp.slice(0, 10).map((s, i) => (i + 1) + '. "' + s.replace(/[.]$/, "") + '"');
+      while (quotes.length < 10) quotes.push((quotes.length + 1) + '. "' + topic + ' changes everything once you start."');
+      return [
+        { title: "📸 Instagram Caption", body: rand(HOOK_LIB["Educational"]).replace(/\{t\}/g, topic) + "\n\n" + p1 + (p2 ? "\n" + p2 : "") + "\n\n" + rand(CTAS) + "\n\n" + hashtags(v.audience), actions: ["copy", "save"] },
+        { title: "🎵 TikTok Script", body: "[Hook] " + rand(HOOK_LIB["Curiosity"]).replace(/\{t\}/g, topic) + "\n[Beat 1] " + p1 + "\n[Beat 2] " + (p2 || "Here's the key part.") + "\n[CTA] " + rand(CTAS), actions: ["copy", "save"] },
+        { title: "▶️ YouTube Shorts Script", body: "[0-3s] " + rand(HOOK_LIB["Question"]).replace(/\{t\}/g, topic) + "\n[3-20s] " + p1 + "\n[20-40s] " + (p2 || p1) + "\n[End] " + rand(CTAS), actions: ["copy", "save"] },
+        { title: "𝕏 Post", body: p1 + (p3 ? "\n\n" + p3 : "") + "\n\n" + hashtags(v.audience), actions: ["copy", "save"] },
+        { title: "💼 LinkedIn Post", body: "A quick lesson on " + topic + ":\n\n" + kp.slice(0, 3).map((s) => "• " + s).join("\n") + "\n\nWhat would you add?", actions: ["copy", "save"] },
+        { title: "👍 Facebook Post", body: p1 + "\n\n" + (p2 || "") + "\n\n" + rand(CTAS), actions: ["copy", "save"] },
+        { title: "🖼️ Carousel Outline", body: "Slide 1 (hook): " + rand(HOOK_LIB["Bold statement"]).replace(/\{t\}/g, topic) + "\n" + kp.slice(0, 4).map((s, i) => "Slide " + (i + 2) + ": " + s).join("\n") + "\nFinal slide: " + rand(CTAS), actions: ["copy", "save"] },
+        { title: "✉️ Email Newsletter", body: "Subject: " + rand(HOOK_LIB["Curiosity"]).replace(/\{t\}/g, topic) + "\n\nHey there,\n\n" + p1 + "\n\n" + (p2 || "") + "\n\n" + rand(CTAS) + "\n\n— Your name", actions: ["copy", "save"] },
+        { title: "🔥 10 Short Hooks", body: hooksList, actions: ["copy", "save"] },
+        { title: "💬 10 Quote Ideas", body: quotes.join("\n"), actions: ["copy", "save"] }
+      ];
+    },
+    system: "You repurpose one piece of content into many platform-specific formats.",
+    prompt(v, lang) { return `Repurpose this content into: Instagram caption, TikTok script, YouTube Shorts script, X post, LinkedIn post, Facebook post, carousel outline, email newsletter, 10 short hooks, and 10 quote ideas. Tone: ${orDefault(v.tone, "match original")}. Write in ${lang}. Separate each output with a blank line and a clear heading.\n\nCONTENT:\n${v.source}`; }
+  };
+
+  /* ============================================================ */
+  /*  7. CONTENT CALENDAR (dashboard)                             */
+  /* ============================================================ */
+  TOOLS.calendar = {
+    icon: "📅", name: "Calendar", title: "AI Content Calendar",
+    desc: "A ready-to-post schedule with an idea, format, hook and CTA for every day — built around your niche, platform and content pillars.",
+    kind: "dashboard", btnLabel: "Generate Calendar", formTitle: "Calendar Settings",
+    stages: ["Mapping content pillars…", "Spacing formats…", "Writing daily hooks…"],
+    fields: [
+      ["niche", "Niche", "text", "e.g. Fitness"],
+      ["platform", "Platform", "select", ["Instagram", "TikTok", "YouTube", "LinkedIn", "Multiple"]],
+      ["goal", "Goal", "select", ["Grow audience", "Drive sales", "Engagement", "Authority", "Community"]],
+      ["days", "Days", "select", ["7", "14", "30"]],
+      ["frequency", "Frequency", "select", ["Daily", "5x / week", "3x / week"]],
+      ["pillars", "Content Pillars", "text", "e.g. tips, story, product"]
+    ],
+    build(v) {
+      const days = parseInt(v.days || "7", 10);
+      const dow = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+      const pillars = (val(v.pillars) ? v.pillars.split(",").map((s) => s.trim()).filter(Boolean) : ["Educate", "Entertain", "Inspire", "Promote", "Engage"]);
+      const ideas = makeIdeas(v.niche, v.platform, "", v.goal, Math.min(days, 12));
+      let cards = "";
+      for (let i = 0; i < days; i++) {
+        const idea = ideas[i % ideas.length];
+        const pillar = pillars[i % pillars.length];
+        const firstLine = idea.title.replace(/^Idea #\d+:\s*/, "");
+        cards += `<div class="cf-mini">
+          <h4>${esc(dow[i % 7])} · Day ${i + 1}</h4>
+          <div class="cf-meta-row"><span class="cf-chip">${esc(pillar)}</span><span class="cf-chip neutral">${esc(rand(FORMATS))}</span><span class="cf-chip neutral">${esc(orDefault(v.platform, "IG"))}</span></div>
+          <div class="cf-card-body" style="font-size:13px"><b>Idea:</b> ${esc(firstLine)}
+<b>Hook:</b> ${esc(rand(HOOK_LIB[rand(Object.keys(HOOK_LIB))]).replace(/\{t\}/g, orDefault(v.niche, "your niche")))}
+<b>CTA:</b> ${esc(rand(CTAS))}</div>
+        </div>`;
+      }
+      return `<div class="cf-notice info"><span>📌</span><span>A ${days}-day plan for <b>${esc(orDefault(v.niche, "your niche"))}</b>. Ideas are AI-generated starting points — adapt them to your voice.</span></div>
+        <div class="cf-grid three">${cards}</div>${reportBar("Content Calendar", days + "-day calendar")}`;
+    }
+  };
+
+  /* ============================================================ */
+  /*  8. CONTENT SCORE (dashboard)                                */
+  /* ============================================================ */
+  TOOLS.score = {
+    icon: "📊", name: "Content Score", title: "Content Score",
+    desc: "Paste a caption, script or post and get an AI assessment across hook, clarity, value, engagement and CTA — plus an improved rewrite.",
+    kind: "dashboard", btnLabel: "Score My Content", formTitle: "Your Content",
+    stages: ["Reading content…", "Scoring dimensions…", "Writing an improved version…"],
+    fields: [["content", "Paste content", "textarea", "Paste your caption, script or post…"], ["platform", "Platform", "select", ["Instagram", "TikTok", "YouTube", "LinkedIn", "X"]], ["audience", "Audience", "text", "optional"]],
+    validate(v) { if (!val(v.content) || val(v.content).length < 15) return "Please paste some content to score."; return ""; },
+    build(v) {
+      const c = v.content; const s = hookScore(c);
+      const hasCta = /\b(follow|subscribe|comment|share|link|shop|dm|save|click|join)\b/i.test(c);
+      const dims = [
+        ["Hook", s.curiosity], ["Clarity", s.clarity], ["Value", clampScore(s.overall + 2)],
+        ["Engagement", s.scroll], ["CTA", hasCta ? clampScore(s.overall + 10) : clampScore(s.overall - 18)],
+        ["Readability", clampScore(90 - Math.min(40, sentences(c).length))], ["Platform Fit", s.platform], ["Audience Fit", s.audience]
+      ];
+      const overall = clampScore(dims.reduce((a, d) => a + d[1], 0) / dims.length);
+      const kp = keyPoints(c, 3); const topic = topicOf(c);
+      const rewrite = rand(HOOK_LIB["Curiosity"]).replace(/\{t\}/g, topic) + "\n\n" + (kp[0] || c) + (kp[1] ? "\n" + kp[1] : "") + "\n\n" + (hasCta ? "" : "👉 " + rand(CTAS));
+      return `
+        <div class="cf-score-hero">${ring(overall, "AI SCORE")}
+          <div class="cf-score-copy"><h3>Content Score — ${overall}/100 <span class="cf-chip mid" style="vertical-align:middle">AI Assessment</span></h3>
+          <p>Estimated from wording and structure. Weakest areas are your fastest wins.</p></div></div>
+        ${label("Breakdown")}
+        <div class="cf-grid two"><div class="cf-mini">${dims.slice(0, 4).map((d) => meter(d[0], d[1])).join("")}</div><div class="cf-mini">${dims.slice(4).map((d) => meter(d[0], d[1])).join("")}</div></div>
+        ${label("Improve This Content")}
+        <div class="cf-card" data-feature="Content Score"><div class="cf-card-head"><div class="cf-card-title">✏️ Suggested Rewrite</div><div class="cf-card-actions"><button class="cf-act" data-act="copy">COPY</button><button class="cf-act" data-act="save">SAVE</button></div></div><div class="cf-card-body">${esc(rewrite)}</div></div>
+        ${reportBar("Content Score", "Content score report")}
+      `;
+    }
+  };
+
+  /* ============================================================ */
+  /*  9. CREATOR VOICE (custom)                                   */
+  /* ============================================================ */
+  function analyzeVoice(text) {
+    const s = sentences(text); const words = String(text).split(/\s+/).filter(Boolean);
+    const avgLen = s.length ? Math.round(words.length / s.length) : words.length;
+    const emojis = (text.match(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu) || []).length;
+    const contractions = /\b(i'm|you're|it's|don't|can't|we're|that's|i've)\b/i.test(text);
+    const humor = /\b(lol|haha|lmao|😂|😅|jk)\b/i.test(text);
+    const exclaim = (text.match(/!/g) || []).length;
+    const uniq = new Set(words.map((w) => w.toLowerCase())).size;
+    return {
+      tone: avgLen <= 12 ? "Punchy & conversational" : avgLen <= 20 ? "Balanced" : "Detailed & long-form",
+      sentence: "Avg " + avgLen + " words/sentence",
+      vocab: uniq > words.length * 0.6 ? "Rich & varied" : "Simple & repeatable",
+      formality: contractions ? "Casual (uses contractions)" : "Formal",
+      humor: humor ? "Playful / uses humor" : "Straight / minimal humor",
+      emoji: emojis === 0 ? "No emojis" : emojis < 4 ? "Light emoji use" : "Heavy emoji use",
+      formatting: /\n/.test(text) ? "Uses line breaks / structure" : "Runs in paragraphs",
+      cta: exclaim > 1 ? "Energetic CTAs (!)" : "Understated CTAs"
+    };
+  }
+  TOOLS.voice = {
+    icon: "🧠", name: "Creator Voice", title: "Creator Voice",
+    custom(main) {
+      const saved = CF.store.get(CF.K.voice, null);
+      main.innerHTML = `
+        <h2 class="cf-panel-title"><span>🧠</span> Creator Voice</h2>
+        <p class="cf-panel-desc">Paste a few samples of your own writing. We'll build a local "Voice Profile" so generations can sound more like you. It's stored only in this browser.</p>
+        <div class="form-section">
+          <div class="form-section-title">Your Writing Samples</div>
+          <div class="fields"><div class="field" style="grid-column:1/-1"><label for="cf-f-voice">Paste 2-4 examples of your captions / posts</label><textarea id="cf-f-voice" placeholder="Paste your real writing here…">${saved && saved.raw ? esc(saved.raw) : ""}</textarea></div></div>
+          <div class="btn-group"><button class="generate-btn" id="cfVoiceBtn">Analyze My Voice</button><button class="clear-btn" id="cfVoiceClear">Clear Profile</button></div>
+        </div>
+        <div class="cf-results" id="cfVoiceOut"></div>`;
+      const out = main.querySelector("#cfVoiceOut");
+      function renderProfile(p, raw) {
+        out.innerHTML = `<div class="cf-notice info"><span>✅</span><span><b>Voice Profile saved.</b> When you connect an AI provider, "Write Like Me" is added to your prompts so generations match this style.</span></div>
+          <div class="cf-grid two">
+            ${miniList("Detected Style", [{ text: p.tone }, { text: p.sentence }, { text: p.vocab }, { text: p.formality }], "🎨")}
+            ${miniList("Voice Signals", [{ text: p.humor }, { text: p.emoji }, { text: p.formatting }, { text: p.cta }], "📣")}
+          </div>
+          <div class="cf-card" data-feature="Creator Voice"><div class="cf-card-head"><div class="cf-card-title">📝 Write Like Me — style summary</div><div class="cf-card-actions"><button class="cf-act" data-act="copy">COPY</button><button class="cf-act" data-act="save">SAVE</button></div></div><div class="cf-card-body">Tone: ${esc(p.tone)}. ${esc(p.sentence)}. ${esc(p.formality)}. ${esc(p.humor)}. ${esc(p.emoji)}. ${esc(p.cta)}.</div></div>`;
+        CF.animateInScope && CF.animateInScope(out);
+      }
+      if (saved && saved.profile) renderProfile(saved.profile, saved.raw);
+      main.querySelector("#cfVoiceBtn").onclick = () => {
+        const raw = main.querySelector("#cf-f-voice").value.trim();
+        if (raw.length < 30) { out.innerHTML = `<div class="error">⚠️ Please paste at least a few sentences of your writing.</div>`; return; }
+        const profile = analyzeVoice(raw);
+        CF.store.set(CF.K.voice, { raw, profile, date: Date.now() });
+        // fold into AI system prompt
+        const cfg = CF.store.get(CF.K.aicfg, { endpoint: "", model: "", key: "", system: "" });
+        cfg.system = "You are Copyforge Creator AI. Write in the user's voice — " + profile.tone + ", " + profile.formality + ", " + profile.emoji + ".";
+        CF.store.set(CF.K.aicfg, cfg);
+        CF.toast("Voice Profile saved");
+        renderProfile(profile, raw);
+      };
+      main.querySelector("#cfVoiceClear").onclick = () => {
+        CF.store.set(CF.K.voice, null);
+        main.querySelector("#cf-f-voice").value = ""; out.innerHTML = "";
+        CF.toast("Voice Profile cleared");
+      };
+      CF.updateModeBadge();
+    }
+  };
+
+  /* ============================================================ */
+  /*  10. PRODUCT ANALYZER (dashboard)                            */
+  /* ============================================================ */
+  TOOLS.product = {
+    icon: "🛍️", name: "Product Analyzer", title: "Product Analyzer",
+    desc: "Analyze a product from a URL, name or description and get positioning, benefits, objections, CTAs and social content ideas.",
+    kind: "dashboard", btnLabel: "Analyze Product", formTitle: "Product Info",
+    stages: ["Reading provided info…", "Mapping positioning…", "Finding content angles…"],
+    fields: [["url", "Product URL", "text", "https://…"], ["name", "Product Name", "text", "e.g. Aurora Hoodie"], ["desc", "Product Description", "textarea", "Describe the product…"], ["site", "Website URL", "text", "optional"]],
+    validate(v) { if (!val(v.url) && !val(v.name) && !val(v.desc)) return "Add a product URL, name, or description."; return ""; },
+    build(v) {
+      const name = orDefault(v.name, topicOf(v.desc) || "your product");
+      const provided = [val(v.url), val(v.name), val(v.desc), val(v.site)].filter(Boolean);
+      const kp = keyPoints(v.desc, 4);
+      return `
+        <div class="cf-notice"><span>🔍</span><span>Browser apps can't crawl private product pages. This analysis uses <b>only what you provided</b>. Items are labelled Verified (from you), AI interpretation, or Recommendation.</span></div>
+        <div class="cf-grid two">
+          ${miniList("Verified (from you)", provided.length ? provided.map((p) => ({ text: p, cls: "good" })) : [{ text: "No details provided", cls: "warn" }], "✅")}
+          ${miniList("AI Interpretation", [{ text: "Positioning: " + name + " as a premium, benefit-led pick" }, { text: "Likely audience: buyers who value quality & convenience" }, { text: "Category framing: solves a clear everyday friction" }], "🧠")}
+        </div>
+        ${label("Benefits & Selling Points")}
+        <div class="cf-grid two">
+          ${miniList("Main Benefits", (kp.length ? kp : ["Saves time", "Looks/feels premium", "Easy to use"]).map((t) => ({ text: t })), "⭐")}
+          ${miniList("Selling Points", ["Lead with the #1 transformation", "Show it in real use", "Stack social proof", "Reduce risk (guarantee/returns)"].map((t) => ({ text: t })), "💡")}
+        </div>
+        ${label("Objections & CTAs")}
+        <div class="cf-grid two">
+          ${miniList("Possible Objections", ["\"Is it worth the price?\"", "\"Will it work for me?\"", "\"How is it different?\""].map((t) => ({ text: t, cls: "warn" })), "🚧")}
+          ${miniList("CTA Recommendations", ["\"Shop the " + name + " →\"", "\"See it in action\"", "\"Grab yours before it's gone\""].map((t) => ({ text: t, cls: "fix" })), "🎯")}
+        </div>
+        ${label("Social Content Ideas")}
+        <div class="cf-results">${makeIdeas(name, "Instagram", "buyers", "drive sales", 3).map((b) => CF.blockCardExternal(b, "Product Analyzer")).join("")}</div>
+        ${reportBar("Product Analyzer", name + " analysis")}
+      `;
+    }
+  };
+
+  /* ============================================================ */
+  /*  11. WHAT TO PROMOTE (dashboard)                             */
+  /* ============================================================ */
+  TOOLS.promote = {
+    icon: "💡", name: "What to Promote", title: "What Should I Promote?",
+    desc: "List your products (one per line) and get an AI-ranked recommendation of what to feature first, with reasons. These are AI suggestions, not sales predictions.",
+    kind: "dashboard", btnLabel: "Rank My Products", formTitle: "Your Products",
+    stages: ["Reading products…", "Scoring content potential…", "Ranking…"],
+    fields: [["products", "Products (one per line)", "textarea", "Product A\nProduct B\nProduct C"], ["audience", "Audience", "text", "optional"], ["platform", "Platform", "select", ["Instagram", "TikTok", "YouTube", "Multiple"]], ["goal", "Goal", "text", "optional"]],
+    validate(v) { if (!val(v.products)) return "List at least one product."; return ""; },
+    build(v) {
+      const items = v.products.split("\n").map((s) => s.trim()).filter(Boolean);
+      const scored = items.map((p) => ({ name: p, score: clampScore(60 + (hashStr(p) % 30) + Math.floor(Math.random() * 8)) })).sort((a, b) => b.score - a.score);
+      const reasons = ["Strong visual/demo potential", "Clear, easy-to-explain benefit", "Broad audience appeal", "Good price-to-story ratio", "Naturally shareable", "Easy to show a before/after"];
+      return `<div class="cf-notice"><span>🧠</span><span>Ranking is an <b>AI recommendation</b> based on content potential — not a guaranteed sales prediction.</span></div>` +
+        scored.map((p, i) => `
+        <div class="cf-card" data-feature="What to Promote" style="${i === 0 ? "border-left-color:var(--green)" : ""}">
+          <div class="cf-card-head"><div class="cf-card-title">${i === 0 ? "🏆 #1 Recommended" : "#" + (i + 1)} — ${esc(p.name)}</div>
+            <div class="cf-card-actions"><span class="cf-chip ${i === 0 ? "hi" : "mid"}">Content score ${p.score}</span><button class="cf-act" data-act="save">SAVE</button></div></div>
+          <div class="cf-card-body">${shuffle(reasons).slice(0, 4).map((r) => "• " + r).join("\n")}
+Best on: ${esc(orDefault(v.platform, "Instagram"))}${val(v.audience) ? " for " + esc(v.audience) : ""}.</div>
+        </div>`).join("") + reportBar("What to Promote", "Product ranking");
+    }
+  };
+
+  /* ============================================================ */
+  /*  12. WEBSITE ANALYZER (dashboard)                            */
+  /* ============================================================ */
+  TOOLS.website = {
+    icon: "🌐", name: "Website Analyzer", title: "Website Analyzer",
+    desc: "Enter your website URL for an AI assessment of messaging, CTA, trust and conversion clarity — plus your top 5 improvements.",
+    kind: "dashboard", btnLabel: "Analyze Website", formTitle: "Website",
+    stages: ["Reading URL…", "Assessing messaging heuristics…", "Building recommendations…"],
+    fields: [["url", "Website URL", "text", "https://you.com"], ["niche", "Niche", "text", "optional"], ["goal", "Primary Goal", "text", "e.g. sell / capture emails"]],
+    validate(v) { if (!val(v.url)) return "Please enter a website URL."; if (!/^https?:\/\/.+\..+/.test(v.url)) return "That doesn't look like a valid URL (include https://)."; return ""; },
+    build(v) {
+      const seed = (k) => v.url + k;
+      const dims = [["Homepage Messaging", estimate(seed("m"), 3, 0)], ["Headline Strength", estimate(seed("h"), 3, 0)], ["CTA Clarity", estimate(seed("c"), 3, 0)], ["Product Positioning", estimate(seed("p"), 3, 0)], ["Trust Signals", estimate(seed("t"), 3, 0)], ["Content Opportunities", estimate(seed("co"), 3, 0)], ["SEO Basics", estimate(seed("s"), 3, 0)], ["Conversion Clarity", estimate(seed("cv"), 3, 0)], ["Brand Consistency", estimate(seed("b"), 3, 0)]];
+      const overall = clampScore(dims.reduce((a, d) => a + d[1], 0) / dims.length);
+      const fixes = ["Lead with one clear promise above the fold", "Make the primary CTA impossible to miss", "Add social proof near the buy/signup button", "Tighten your headline to a single outcome", "Add a simple FAQ to kill objections"];
+      return `
+        <div class="cf-notice"><span>🔒</span><span>Browser apps can't crawl external sites. This is an <b>AI heuristic assessment</b> to guide review — not a live crawl of <b>${esc(v.url)}</b>.</span></div>
+        <div class="cf-score-hero">${ring(overall, "AI SCORE")}<div class="cf-score-copy"><h3>Website Score — ${overall}/100 <span class="cf-chip mid" style="vertical-align:middle">AI Assessment</span></h3><p>Use this as a review checklist for ${esc(v.url)}.</p></div></div>
+        ${label("Breakdown")}
+        <div class="cf-grid two"><div class="cf-mini">${dims.slice(0, 5).map((d) => meter(d[0], d[1])).join("")}</div><div class="cf-mini">${dims.slice(5).map((d) => meter(d[0], d[1])).join("")}</div></div>
+        ${label("Top 5 Improvements")}
+        ${miniList("Do these first", fixes.map((t) => ({ text: t, cls: "fix" })))}
+        ${reportBar("Website Analyzer", "Website report")}
+      `;
+    }
+  };
+
+  /* ============================================================ */
+  /*  13. TREND RADAR / OPPORTUNITY RADAR (dashboard)             */
+  /* ============================================================ */
+  TOOLS.trends = {
+    icon: "🔥", name: "Opportunity Radar", title: "AI Opportunity Radar",
+    desc: "Content opportunities tuned to your niche. This is not live trend data — it's an AI-generated radar of angles worth trying now.",
+    kind: "dashboard", btnLabel: "Scan Opportunities", formTitle: "Radar Settings",
+    stages: ["Scanning your niche…", "Clustering angles…", "Ranking opportunities…"],
+    fields: [["niche", "Niche", "text", "e.g. Gaming"], ["platform", "Platform", "select", ["TikTok", "Instagram", "YouTube", "LinkedIn"]], ["category", "Category", "select", ["AI", "Gaming", "Technology", "Fashion", "Education", "Fitness", "Business", "Lifestyle", "Food", "Finance"]]],
+    build(v) {
+      const niche = orDefault(v.niche, v.category || "your niche");
+      const opps = makeIdeas(niche, v.platform, "", "grow", 8);
+      return `<div class="cf-notice"><span>📡</span><span>This is an <b>AI Opportunity Radar</b>, not live "trending now" data. Angles are generated from your niche &amp; category.</span></div>
+        <div class="cf-grid two">${opps.map((o) => `<div class="cf-mini"><h4>💡 ${esc(o.title.replace(/^Idea #\d+:\s*/, ""))}</h4><div class="cf-meta-row">${o.chips.map((c) => `<span class="cf-chip ${c.cls}">${esc(c.label)}</span>`).join("")}</div><div class="cf-card-body" style="font-size:13px">${esc(o.body.split("\n").slice(0, 3).join("\n"))}</div></div>`).join("")}</div>
+        ${reportBar("Opportunity Radar", niche + " opportunities")}`;
+    }
+  };
+
+  /* ============================================================ */
+  /*  14. AUDIENCE PERSONA (dashboard)                            */
+  /* ============================================================ */
+  TOOLS.persona = {
+    icon: "👥", name: "Audience Persona", title: "Audience Persona AI",
+    desc: "A planning persona for your ideal viewer — interests, questions, problems, goals and preferred formats. This is an AI hypothesis to guide content, not real user data.",
+    kind: "dashboard", btnLabel: "Build Persona", formTitle: "Persona Inputs",
+    stages: ["Modeling audience…", "Mapping motivations…", "Drafting persona…"],
+    fields: [["niche", "Niche", "text", "e.g. Fitness"], ["platform", "Platform", "select", ["Instagram", "TikTok", "YouTube", "LinkedIn"]], ["product", "Product / Offer", "text", "optional"], ["audience", "Audience note", "text", "e.g. busy professionals"]],
+    build(v) {
+      const niche = orDefault(v.niche, "your niche");
+      return `<div class="cf-notice info"><span>🧪</span><span>This is an <b>AI-generated audience hypothesis</b> for planning — validate it against your real comments and DMs.</span></div>
+        <div class="cf-grid two">
+          ${miniList("Likely Interests", [niche, "practical how-tos", "creators like you", "quick wins", "community & belonging"].map((t) => ({ text: t })), "❤️")}
+          ${miniList("Common Questions", ["\"Where do I start with " + niche + "?\"", "\"Why isn't this working for me?\"", "\"What do you recommend?\"", "\"Is it worth it?\""].map((t) => ({ text: t })), "❓")}
+          ${miniList("Content Preferences", ["Short, skimmable", "Real examples > theory", "Saves & rewatches tutorials", "Prefers " + orDefault(v.platform, "short video")].map((t) => ({ text: t })), "🎬")}
+          ${miniList("Problems", ["Overwhelmed by options", "No time / consistency", "Fear of doing it wrong"].map((t) => ({ text: t, cls: "warn" })), "🚧")}
+          ${miniList("Goals", ["See visible progress fast", "Feel confident", "Save money / time"].map((t) => ({ text: t })), "🎯")}
+          ${miniList("Objections & Tone", ["Skeptical of hype", "Prefers honest, warm tone", "Responds to proof"].map((t) => ({ text: t })), "🗣️")}
+        </div>
+        ${reportBar("Audience Persona", niche + " persona")}`;
+    }
+  };
+
+  /* ============================================================ */
+  /*  15. COMMENT ASSISTANT (text)                                */
+  /* ============================================================ */
+  TOOLS.comments = {
+    icon: "💬", name: "Comment Assistant", title: "Comment Reply Assistant",
+    desc: "Paste comments (one per line) and get on-brand replies in the style you choose.",
+    kind: "text", btnLabel: "Generate Replies", formTitle: "Comments",
+    fields: [["comments", "Paste comments (one per line)", "textarea", "Love this!\nDoes it work for beginners?\nToo expensive imo"], ["style", "Reply Style", "select", ["Friendly", "Professional", "Funny", "Educational", "Short", "Brand voice"]], ["brand", "Brand note", "text", "optional"]],
+    validate(v) { if (!val(v.comments)) return "Paste at least one comment."; return ""; },
+    generate(v) {
+      const lines = v.comments.split("\n").map((s) => s.trim()).filter(Boolean);
+      const style = v.style || "Friendly";
+      const tmpl = {
+        Friendly: (c) => "Thank you so much! 🙌 Really glad this landed with you — anything you'd want to see next?",
+        Professional: (c) => "Appreciate you taking the time to comment. Happy to help — let me know if you have any questions.",
+        Funny: (c) => "Okay this comment just made my whole day 😄 you're the best!",
+        Educational: (c) => "Great point! Quick tip: start small and stay consistent — that's where most of the results come from.",
+        Short: (c) => "Thanks! 🙏",
+        "Brand voice": (c) => (val(v.brand) ? "[" + v.brand + " voice] " : "") + "Love this — thanks for being here! We've got more coming your way soon."
+      };
+      return lines.map((c, i) => ({
+        title: "Reply to: " + (c.length > 40 ? c.slice(0, 40) + "…" : c),
+        body: (tmpl[style] || tmpl.Friendly)(c),
+        chips: [{ label: style, cls: "neutral" }],
+        actions: ["copy", "regen", "use", "save"]
+      }));
+    },
+    system: "You write warm, on-brand replies to social media comments.",
+    prompt(v, lang) { return `Write ${v.style || "friendly"} replies to each of these comments (one reply each). Brand note: ${orDefault(v.brand, "none")}. Write in ${lang}.\n\nCOMMENTS:\n${v.comments}`; }
+  };
+
+  /* ============================================================ */
+  /*  16. CREATIVE BRIEF (dashboard)                              */
+  /* ============================================================ */
+  TOOLS.brief = {
+    icon: "🎨", name: "Creative Brief", title: "Thumbnail / Creative Brief",
+    desc: "A structured thumbnail and creative brief for video content — concept, subject, text, composition and A/B ideas. This describes the visual; it does not render an image.",
+    kind: "dashboard", btnLabel: "Build Brief", formTitle: "Brief Inputs",
+    stages: ["Framing the concept…", "Designing composition…", "Drafting A/B ideas…"],
+    fields: [["topic", "Video Topic", "text", "What's the video about?"], ["platform", "Platform", "select", ["YouTube", "YouTube Shorts", "Instagram", "TikTok"]], ["emotion", "Target Emotion", "select", ["Curiosity", "Excitement", "Shock", "Trust", "FOMO", "Calm"]], ["audience", "Audience", "text", "optional"]],
+    build(v) {
+      const t = orDefault(v.topic, "your topic");
+      return `<div class="cf-notice info"><span>🖌️</span><span>This is a <b>creative brief</b> describing the thumbnail — it does not generate an actual image.</span></div>
+        <div class="cf-grid two">
+          ${miniList("Concept", ["Big idea: " + t + " in one glance", "Main subject: expressive face or the object in action", "Emotion: " + orDefault(v.emotion, "curiosity")].map((x) => ({ text: x })), "💡")}
+          ${miniList("Composition", ["Rule of thirds, subject off-center", "1-3 focal elements max", "High contrast subject vs background", "Readable at tiny size"].map((x) => ({ text: x })), "📐")}
+          ${miniList("Thumbnail Text (options)", ['"' + t.toUpperCase().slice(0, 22) + '"', '"THIS CHANGES ' + t.slice(0, 12).toUpperCase() + '"', '"DON\'T DO THIS"'].map((x) => ({ text: x })), "🔤")}
+          ${miniList("Color & Hierarchy", ["Bold complementary palette", "Subject brightest, text second", "Add glow/outline to pop text", "Avoid clutter"].map((x) => ({ text: x })), "🎨")}
+        </div>
+        ${label("A/B Thumbnail Concepts")}
+        <div class="cf-grid two">
+          <div class="cf-mini"><h4>Concept A — Face + Reaction</h4><div class="cf-card-body" style="font-size:13px">Close-up expressive face, 3-word text, bright background. Emotion: ${esc(orDefault(v.emotion, "curiosity"))}.</div></div>
+          <div class="cf-mini"><h4>Concept B — Object + Contrast</h4><div class="cf-card-body" style="font-size:13px">Hero object on bold color, arrow/circle highlight, minimal text. Emotion: intrigue.</div></div>
+        </div>
+        ${reportBar("Creative Brief", t + " brief")}`;
+    }
+  };
+
+  /* ============================================================ */
+  /*  17. CAMPAIGN BUILDER (dashboard)                            */
+  /* ============================================================ */
+  TOOLS.campaign = {
+    icon: "🚀", name: "Campaign Builder", title: "Campaign Builder",
+    desc: "A full promotional campaign — pillars, posts, reels, hooks, CTAs and a rollout sequence — around one goal.",
+    kind: "dashboard", btnLabel: "Build Campaign", formTitle: "Campaign Brief",
+    stages: ["Setting the goal…", "Designing pillars…", "Sequencing the rollout…"],
+    fields: [["goal", "Campaign Goal", "text", "e.g. Launch new course"], ["product", "Product / Offer", "text", "e.g. Creator Course"], ["audience", "Audience", "text", "e.g. aspiring creators"], ["platform", "Platform", "select", ["Instagram", "TikTok", "YouTube", "Multiple"]], ["duration", "Duration", "select", ["1 week", "2 weeks", "30 days"]]],
+    validate(v) { if (!val(v.goal)) return "Add a campaign goal."; return ""; },
+    build(v) {
+      const product = orDefault(v.product, "your offer");
+      const pillars = ["Tease / build anticipation", "Educate on the problem", "Show proof & results", "Reveal the offer", "Handle objections", "Final call / urgency"];
+      const hooks = makeHooks(product, v.platform, null, 5).map((h, i) => (i + 1) + ". " + h).join("\n");
+      const seq = ["Phase 1 — Warm up: value posts about the problem", "Phase 2 — Reveal: announce " + product, "Phase 3 — Proof: testimonials, demos, behind-the-scenes", "Phase 4 — Convert: offer + clear CTA daily", "Phase 5 — Urgency: last chance, close cart"];
+      return `<div class="cf-notice info"><span>🎯</span><span>Campaign for <b>${esc(v.goal)}</b> over ${esc(orDefault(v.duration, "2 weeks"))} on ${esc(orDefault(v.platform, "Instagram"))}.</span></div>
+        <div class="cf-grid two">
+          ${miniList("Content Pillars", pillars.map((p) => ({ text: p })), "🏛️")}
+          ${miniList("Promotional Sequence", seq.map((s) => ({ text: s, cls: "fix" })), "📈")}
+        </div>
+        ${label("Posts & Reels")}
+        <div class="cf-results">${makeIdeas(product, v.platform, v.audience, v.goal, 4).map((b) => CF.blockCardExternal(b, "Campaign Builder")).join("")}</div>
+        ${label("Campaign Hooks")}
+        <div class="cf-card" data-feature="Campaign Builder"><div class="cf-card-head"><div class="cf-card-title">🔥 5 Hooks</div><div class="cf-card-actions"><button class="cf-act" data-act="copy">COPY</button><button class="cf-act" data-act="save">SAVE</button></div></div><div class="cf-card-body">${esc(hooks)}</div></div>
+        ${reportBar("Campaign Builder", v.goal + " campaign")}`;
+    }
+  };
+
+  /* ============================================================ */
+  /*  18. SMART TEMPLATES (custom)                                */
+  /* ============================================================ */
+  const TEMPLATES = [
+    { cat: "YouTube", ico: "▶️", name: "YouTube Video Script", desc: "Long-form script with production notes", tool: "script", vals: { platform: "YouTube", duration: "5-8 minutes" } },
+    { cat: "TikTok", ico: "🎵", name: "Viral TikTok Hook", desc: "10 scroll-stopping hooks", tool: "hooks", vals: { platform: "TikTok", type: "Curiosity" } },
+    { cat: "Instagram", ico: "📸", name: "IG Carousel Pack", desc: "Repurpose into a carousel + caption", tool: "repurpose", vals: {} },
+    { cat: "LinkedIn", ico: "💼", name: "LinkedIn Authority Post", desc: "Professional post ideas", tool: "whatpost", vals: { platform: "LinkedIn" } },
+    { cat: "X", ico: "𝕏", name: "X Thread Starter", desc: "Punchy hooks for threads", tool: "hooks", vals: { platform: "X", type: "Bold statement" } },
+    { cat: "Facebook", ico: "👍", name: "Facebook Promo", desc: "Friendly promo posts", tool: "whatpost", vals: { platform: "Instagram" } },
+    { cat: "E-commerce", ico: "🛍️", name: "Product Launch", desc: "Analyze & promote a product", tool: "product", vals: {} },
+    { cat: "Personal Brand", ico: "✨", name: "Brand Health Check", desc: "Full creator brand analysis", tool: "advisor", vals: {} },
+    { cat: "Creator", ico: "🎯", name: "Weekly Calendar", desc: "7-day content plan", tool: "calendar", vals: { days: "7" } },
+    { cat: "Gaming", ico: "🎮", name: "Gaming Content Ideas", desc: "10 ideas for gaming creators", tool: "whatpost", vals: { niche: "Gaming", platform: "YouTube" } },
+    { cat: "Education", ico: "📚", name: "Course Campaign", desc: "Full launch campaign", tool: "campaign", vals: { goal: "Launch course", product: "Online course" } },
+    { cat: "Business", ico: "💰", name: "Offer Promotion", desc: "Rank what to promote", tool: "promote", vals: {} }
+  ];
+  TOOLS.templates = {
+    icon: "🧩", name: "Templates", title: "Smart Templates",
+    custom(main) {
+      const cats = ["All"].concat(Array.from(new Set(TEMPLATES.map((t) => t.cat))));
+      main.innerHTML = `
+        <h2 class="cf-panel-title"><span>🧩</span> Smart Templates</h2>
+        <p class="cf-panel-desc">Jump straight into the right tool with a head start. Pick a template to open its generator, pre-filled.</p>
+        <div class="creator-tabs" id="cfTplCats">${cats.map((c, i) => `<button class="tab-btn ${i === 0 ? "active" : ""}" data-cat="${esc(c)}">${esc(c)}</button>`).join("")}</div>
+        <div class="cf-template-grid" id="cfTplGrid"></div>`;
+      const grid = main.querySelector("#cfTplGrid");
+      function draw(cat) {
+        const list = cat === "All" ? TEMPLATES : TEMPLATES.filter((t) => t.cat === cat);
+        grid.innerHTML = list.map((t, i) => `<button class="cf-tpl" data-idx="${TEMPLATES.indexOf(t)}"><div class="cf-tpl-ico">${t.ico}</div><h5>${esc(t.name)}</h5><p>${esc(t.desc)}</p><div class="cf-meta-row" style="margin-top:10px"><span class="cf-chip neutral">${esc(t.cat)}</span></div></button>`).join("");
+        grid.querySelectorAll(".cf-tpl").forEach((btn) => {
+          btn.onclick = () => { const t = TEMPLATES[parseInt(btn.getAttribute("data-idx"), 10)]; CF.prefill(t.tool, t.vals); };
+        });
+      }
+      main.querySelectorAll("#cfTplCats .tab-btn").forEach((b) => {
+        b.onclick = () => { main.querySelectorAll("#cfTplCats .tab-btn").forEach((x) => x.classList.remove("active")); b.classList.add("active"); draw(b.getAttribute("data-cat")); };
+      });
+      draw("All");
+      CF.updateModeBadge();
+    }
+  };
+
+  /* ============================================================ */
+  /*  19. CREATOR VAULT (custom)                                  */
+  /* ============================================================ */
+  TOOLS.vault = {
+    icon: "📁", name: "Vault", title: "Creator Vault",
+    custom(main) {
+      main.innerHTML = `
+        <h2 class="cf-panel-title"><span>📁</span> Creator Vault</h2>
+        <p class="cf-panel-desc">Everything you save lives here — stored locally in your browser. Search, filter, favorite, copy or delete.</p>
+        <div class="cf-vault-controls">
+          <input id="cfVaultSearch" placeholder="Search saved content…" aria-label="Search vault">
+          <select id="cfVaultFilter" aria-label="Filter"><option value="all">All types</option></select>
+          <select id="cfVaultFav" aria-label="Favorites"><option value="all">All items</option><option value="fav">★ Favorites only</option></select>
+          <button class="cf-act" id="cfVaultClear">CLEAR ALL</button>
+        </div>
+        <div class="cf-results" id="cfVaultList"></div>`;
+      function render() {
+        const vault = CF.store.get(CF.K.vault, []);
+        const q = (main.querySelector("#cfVaultSearch").value || "").toLowerCase();
+        const ft = main.querySelector("#cfVaultFilter").value;
+        const fav = main.querySelector("#cfVaultFav").value;
+        const types = Array.from(new Set(vault.map((i) => i.type || i.feature).filter(Boolean)));
+        const filterSel = main.querySelector("#cfVaultFilter");
+        filterSel.innerHTML = `<option value="all">All types</option>` + types.map((t) => `<option value="${esc(t)}">${esc(t)}</option>`).join("");
+        filterSel.value = ft;
+        let list = vault.filter((i) => (ft === "all" || (i.type || i.feature) === ft) && (fav === "all" || i.fav) && ((i.title || "") + (i.content || "")).toLowerCase().includes(q));
+        const out = main.querySelector("#cfVaultList");
+        if (!list.length) { out.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">Nothing saved yet</div><div style="font-size:13px;color:var(--studio-muted)">Generate something and hit SAVE to build your vault.</div></div>`; return; }
+        out.innerHTML = list.map((i) => `
+          <div class="cf-card" data-id="${esc(i.id)}">
+            <div class="cf-card-head"><div class="cf-card-title">${i.fav ? "★ " : ""}${esc(i.title || i.feature || "Saved")}</div>
+              <div class="cf-card-actions">
+                <button class="cf-act" data-v="copy">COPY</button>
+                <button class="cf-act" data-v="fav">${i.fav ? "UNFAV" : "★ FAV"}</button>
+                <button class="cf-act" data-v="del">DELETE</button>
+              </div></div>
+            <div class="cf-meta-row"><span class="cf-chip neutral">${esc(i.feature || "Creator AI")}</span><span class="cf-chip neutral">${new Date(i.date).toLocaleDateString()}</span></div>
+            <div class="cf-card-body">${esc((i.content || "").slice(0, 600))}${(i.content || "").length > 600 ? "…" : ""}</div>
+          </div>`).join("");
+        out.querySelectorAll(".cf-card").forEach((card) => {
+          const id = card.getAttribute("data-id");
+          card.querySelectorAll("[data-v]").forEach((btn) => {
+            btn.onclick = () => {
+              let v = CF.store.get(CF.K.vault, []); const item = v.find((x) => x.id === id); if (!item) return;
+              const act = btn.getAttribute("data-v");
+              if (act === "copy") { navigator.clipboard && navigator.clipboard.writeText(item.content || "").then(() => CF.toast("Copied")); }
+              else if (act === "fav") { item.fav = !item.fav; CF.store.set(CF.K.vault, v); render(); }
+              else if (act === "del") { v = v.filter((x) => x.id !== id); CF.store.set(CF.K.vault, v); CF.toast("Deleted"); render(); }
+            };
+          });
+        });
+      }
+      main.querySelector("#cfVaultSearch").oninput = render;
+      main.querySelector("#cfVaultFilter").onchange = render;
+      main.querySelector("#cfVaultFav").onchange = render;
+      main.querySelector("#cfVaultClear").onclick = () => { if (confirm("Delete all saved items? This cannot be undone.")) { CF.store.set(CF.K.vault, []); CF.toast("Vault cleared"); render(); } };
+      render();
+      CF.updateModeBadge();
+    }
+  };
+
+  /* ============================================================ */
+  /*  20. HISTORY (custom)                                        */
+  /* ============================================================ */
+  TOOLS.history = {
+    icon: "🕘", name: "History", title: "Generation History",
+    custom(main) {
+      main.innerHTML = `
+        <h2 class="cf-panel-title"><span>🕘</span> History</h2>
+        <p class="cf-panel-desc">A local log of what you've generated. Open re-copies the summary; delete removes it.</p>
+        <div class="cf-vault-controls"><button class="cf-act" id="cfHistClear">CLEAR HISTORY</button></div>
+        <div class="cf-results" id="cfHistList"></div>`;
+      function render() {
+        const h = CF.store.get(CF.K.history, []);
+        const out = main.querySelector("#cfHistList");
+        if (!h.length) { out.innerHTML = `<div class="empty-state"><div class="empty-icon">🗒️</div><div class="empty-text">No history yet</div></div>`; return; }
+        out.innerHTML = h.map((i) => `
+          <div class="cf-card" data-id="${esc(i.id)}">
+            <div class="cf-card-head"><div class="cf-card-title">${esc(i.title || i.feature)}</div>
+              <div class="cf-card-actions"><button class="cf-act" data-h="copy">OPEN</button><button class="cf-act" data-h="del">DELETE</button></div></div>
+            <div class="cf-meta-row"><span class="cf-chip neutral">${esc(i.feature)}</span><span class="cf-chip neutral">${new Date(i.date).toLocaleString()}</span></div>
+            <div class="cf-card-body">${esc((i.content || "").slice(0, 400))}</div>
+          </div>`).join("");
+        out.querySelectorAll(".cf-card").forEach((card) => {
+          const id = card.getAttribute("data-id");
+          card.querySelector('[data-h="copy"]').onclick = () => { const it = CF.store.get(CF.K.history, []).find((x) => x.id === id); if (it) navigator.clipboard && navigator.clipboard.writeText(it.content || "").then(() => CF.toast("Copied")); };
+          card.querySelector('[data-h="del"]').onclick = () => { const v = CF.store.get(CF.K.history, []).filter((x) => x.id !== id); CF.store.set(CF.K.history, v); render(); };
+        });
+      }
+      main.querySelector("#cfHistClear").onclick = () => { if (confirm("Clear all history?")) { CF.store.set(CF.K.history, []); render(); } };
+      render();
+      CF.updateModeBadge();
+    }
+  };
+
+  /* ============================================================ */
+  /*  21. AI PROVIDER SETTINGS (custom)                           */
+  /* ============================================================ */
+  TOOLS.settings = {
+    icon: "⚙️", name: "Settings", title: "AI Provider Settings",
+    custom(main) {
+      const c = CF.store.get(CF.K.aicfg, { endpoint: "", model: "", key: "", system: "" });
+      main.innerHTML = `
+        <h2 class="cf-panel-title"><span>⚙️</span> AI Provider Settings</h2>
+        <p class="cf-panel-desc">Copyforge Creator AI works fully in <b>Offline Mode</b> using local generation. To get live model output, optionally connect an OpenAI-compatible endpoint. Everything is stored only in this browser.</p>
+        <div class="cf-notice"><span>🔐</span><span>Your key is saved in <b>this browser's localStorage</b> and sent directly to the endpoint you specify. Never share a private key you don't control, and don't use this on a shared computer.</span></div>
+        <div class="form-section">
+          <div class="form-section-title">Connection (optional)</div>
+          <div class="fields">
+            <div class="field" style="grid-column:1/-1"><label for="cfSetEndpoint">API Endpoint (chat completions URL)</label><input id="cfSetEndpoint" type="text" placeholder="https://api.openai.com/v1/chat/completions" value="${esc(c.endpoint || "")}"></div>
+            <div class="field"><label for="cfSetModel">Model</label><input id="cfSetModel" type="text" placeholder="gpt-4o-mini" value="${esc(c.model || "")}"></div>
+            <div class="field"><label for="cfSetKey">API Key</label><input id="cfSetKey" type="password" placeholder="sk-… (stored locally only)" value="${esc(c.key || "")}"></div>
+            <div class="field" style="grid-column:1/-1"><label for="cfSetSystem">System instruction (optional)</label><textarea id="cfSetSystem" placeholder="e.g. Always write in a warm, concise creator voice.">${esc(c.system || "")}</textarea></div>
+          </div>
+          <div class="btn-group"><button class="generate-btn" id="cfSetSave">Save Settings</button><button class="clear-btn" id="cfSetTest">Test Connection</button><button class="clear-btn" id="cfSetClear">Disconnect</button></div>
+        </div>
+        <div class="cf-results" id="cfSetOut"></div>`;
+      const out = main.querySelector("#cfSetOut");
+      main.querySelector("#cfSetSave").onclick = () => {
+        const cfg = { endpoint: main.querySelector("#cfSetEndpoint").value.trim(), model: main.querySelector("#cfSetModel").value.trim(), key: main.querySelector("#cfSetKey").value.trim(), system: main.querySelector("#cfSetSystem").value.trim() };
+        CF.store.set(CF.K.aicfg, cfg); CF.updateModeBadge();
+        out.innerHTML = `<div class="cf-notice info"><span>✅</span><span>Saved. Mode is now <b>${CF.AIProvider.isConfigured() ? "AI Live" : "Offline"}</b>.</span></div>`;
+        CF.toast("Settings saved");
+      };
+      main.querySelector("#cfSetClear").onclick = () => {
+        CF.store.set(CF.K.aicfg, { endpoint: "", model: "", key: "", system: "" });
+        ["cfSetEndpoint", "cfSetModel", "cfSetKey", "cfSetSystem"].forEach((id) => main.querySelector("#" + id).value = "");
+        CF.updateModeBadge(); out.innerHTML = `<div class="cf-notice"><span>🔌</span><span>Disconnected. Back to Offline Mode.</span></div>`; CF.toast("Disconnected");
+      };
+      main.querySelector("#cfSetTest").onclick = async () => {
+        const cfg = { endpoint: main.querySelector("#cfSetEndpoint").value.trim(), model: main.querySelector("#cfSetModel").value.trim(), key: main.querySelector("#cfSetKey").value.trim() };
+        if (!cfg.endpoint || !cfg.model) { out.innerHTML = `<div class="error">⚠️ Enter an endpoint and model first.</div>`; return; }
+        CF.store.set(CF.K.aicfg, Object.assign(CF.store.get(CF.K.aicfg, {}), cfg));
+        out.innerHTML = `<div class="loading"></div>`;
+        try { const txt = await CF.AIProvider.generateAI('Reply with exactly: "Copyforge connected."'); out.innerHTML = `<div class="cf-notice info"><span>✅</span><span>Connection OK. Model replied: <b>${esc(txt.slice(0, 120))}</b></span></div>`; CF.updateModeBadge(); }
+        catch (e) { out.innerHTML = `<div class="error">❌ ${esc(e.message)}. Note: browsers block cross-origin calls unless the endpoint allows CORS.</div>`; }
+      };
+      CF.updateModeBadge();
+    }
+  };
+
+  /* record feature->id map for regenerate buttons in dashboards */
+  Object.keys(TOOLS).forEach((id) => { CF._featureToId[TOOLS[id].title] = id; CF._featureToId[TOOLS[id].name] = id; });
+};
+
+/* expose a helper the engine uses to render idea cards inside dashboards */
+window.CF.blockCardExternal = function (b, feature) {
+  const esc = window.CF.esc;
+  const chips = (b.chips && b.chips.length) ? `<div class="cf-meta-row">${b.chips.map((c) => `<span class="cf-chip ${c.cls || "neutral"}">${esc(c.label)}</span>`).join("")}</div>` : "";
+  const acts = (b.actions || ["copy", "save", "use"]).map((k) => {
+    if (k === "copy") return `<button class="cf-act" data-act="copy">COPY</button>`;
+    if (k === "save") return `<button class="cf-act" data-act="save">SAVE</button>`;
+    if (k === "use") return `<button class="cf-act primary" data-act="use">USE THIS</button>`;
+    if (k === "regen") return `<button class="cf-act" data-act="regen">REGENERATE</button>`;
+    return "";
+  }).join("");
+  return `<div class="cf-card" data-feature="${esc(feature)}"><div class="cf-card-head"><div class="cf-card-title">${b.title ? esc(b.title) : ""}</div><div class="cf-card-actions">${acts}</div></div>${chips}<div class="cf-card-body">${esc(b.body)}</div></div>`;
+};
+</script>
+
+</body>
+</html>
