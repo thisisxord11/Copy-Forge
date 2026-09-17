@@ -1,0 +1,7 @@
+{
+  "name": "copyforge-pro",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Copyforge Pro - Vercel-ready owner-managed AI content studio",
+  "engines": { "node": ">=20" }
+}
